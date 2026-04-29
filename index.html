@@ -381,7 +381,7 @@
 
         <div class="login-divider-line"><span>continue with</span></div>
 
-        <button class="google-btn" onclick="handleLogin()">
+        <button class="google-btn" onclick="window.location.href='/auth/google'">
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -434,7 +434,7 @@
         <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
       </div>
       <button class="btn primary" onclick="goTo('rules')" data-i18n="next">Next →</button>
-      <button class="btn danger" onclick="goTo('login')" data-i18n="signout">Sign out</button>
+      <button class="btn danger" onclick="window.location.href='/auth/logout'" data-i18n="signout">Sign out</button>
     </div>
   </div>
   <div class="welcome-hero">
@@ -528,7 +528,7 @@
         <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
       </div>
       <button class="btn" onclick="goTo('welcome')" data-i18n="back">← Back</button>
-      <button class="btn danger" onclick="goTo('login')" data-i18n="signout">Sign out</button>
+      <button class="btn danger" onclick="window.location.href='/auth/logout'" data-i18n="signout">Sign out</button>
     </div>
   </div>
   <div class="center-body">
@@ -614,7 +614,7 @@
         <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
       </div>
       <div class="user-avatar" id="userInitials">D</div>
-      <button class="btn danger" onclick="goTo('login')" data-i18n="signout">Sign out</button>
+      <button class="btn danger" onclick="window.location.href='/auth/logout'" data-i18n="signout">Sign out</button>
     </div>
   </div>
   <div class="oracle-body">
@@ -683,7 +683,8 @@
 </div>
 
 <script>
-const GROQ_KEY = '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';
+const GROQ_KEY = window.GROQ_KEY;
+const GOOGLE_USER = window.GOOGLE_USER;
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const BLOCKED = ['kill','murder','hack','hacking','rob','robbery','steal','bomb','weapon','poison','assault','rape','hurt someone','harm someone','attack','shoot','stab','trafficking','suicide','self-harm'];
 
@@ -972,6 +973,16 @@ const T = {
 };
 
 let currentLang = 'en';
+
+// Auto-login if Google user exists
+if (typeof GOOGLE_USER !== 'undefined' && GOOGLE_USER) {
+  setTimeout(() => {
+    const initials = GOOGLE_USER.name ? GOOGLE_USER.name.charAt(0).toUpperCase() : 'U';
+    document.querySelectorAll('.user-avatar').forEach(el => el.textContent = initials);
+    goTo('welcome');
+  }, 100);
+}
+
 
 function t(key) { return (T[currentLang] && T[currentLang][key]) || T.en[key] || key; }
 
