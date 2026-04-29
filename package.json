@@ -1,0 +1,12 @@
+{
+  "name": "oracle-decision-intelligence",
+  "version": "1.0.0",
+  "description": "Oracle — AI Decision Intelligence Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

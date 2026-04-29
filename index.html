@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oracle — Decision Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --glass-clear: rgba(255,255,255,0.05);
+    --glass-tinted: rgba(60,100,200,0.13);
+    --glass-border-clear: rgba(255,255,255,0.12);
+    --glass-border-tinted: rgba(100,150,255,0.28);
+    --crystal-dark: #04070f;
+    --text-primary: rgba(255,255,255,0.93);
+    --text-secondary: rgba(255,255,255,0.52);
+    --text-muted: rgba(255,255,255,0.28);
+    --accent-blue: #4a7fff;
+    --accent-cyan: #00d4ff;
+    --danger: #ff4a6b;
+    --success: #00e5a0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'DM Sans',sans-serif;
+    background:var(--crystal-dark);
+    color:var(--text-primary);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; top:-50%; left:-50%;
+    width:200%; height:200%;
+    background:
+      radial-gradient(ellipse at 15% 15%, rgba(20,40,140,0.18) 0%, transparent 45%),
+      radial-gradient(ellipse at 85% 85%, rgba(8,70,110,0.14) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 50%, rgba(4,8,20,0.9) 0%, transparent 65%);
+    pointer-events:none; z-index:0;
+  }
+  body::after {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg,transparent,transparent 100px,rgba(255,255,255,0.008) 100px,rgba(255,255,255,0.008) 101px),
+      repeating-linear-gradient(90deg,transparent,transparent 100px,rgba(255,255,255,0.008) 100px,rgba(255,255,255,0.008) 101px);
+    pointer-events:none; z-index:0;
+  }
+  .page { display:none; position:relative; z-index:1; min-height:100vh; }
+  .page.active { display:flex; flex-direction:column; }
+
+  .glass { background:var(--glass-clear); border:1px solid var(--glass-border-clear); backdrop-filter:blur(24px); border-radius:20px; transition:all 0.3s; }
+  .glass.tinted { background:var(--glass-tinted); border-color:var(--glass-border-tinted); }
+
+  .btn {
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.11);
+    color:var(--text-primary);
+    padding:9px 18px; border-radius:11px;
+    cursor:pointer; font-family:'DM Sans',sans-serif;
+    font-size:13px; transition:all 0.2s;
+  }
+  .btn:hover { background:rgba(255,255,255,0.11); transform:translateY(-1px); }
+  .btn.primary { background:rgba(74,127,255,0.18); border-color:rgba(74,127,255,0.38); color:#7ab0ff; }
+  .btn.primary:hover { background:rgba(74,127,255,0.28); }
+  .btn.danger { background:rgba(255,74,107,0.13); border-color:rgba(255,74,107,0.28); color:#ff8fa3; }
+  .btn.success-btn { background:rgba(0,229,160,0.1); border-color:rgba(0,229,160,0.28); color:#00e5a0; }
+
+  .topbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px;
+    border-bottom:1px solid rgba(255,255,255,0.045);
+    background:rgba(4,7,15,0.7);
+    backdrop-filter:blur(24px);
+    position:sticky; top:0; z-index:100;
+  }
+  .logo { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:300; letter-spacing:0.18em; }
+  .logo span { color:var(--accent-blue); }
+  .topbar-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  .mode-toggle { display:flex; gap:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:3px; }
+  .mode-btn { padding:5px 13px; border-radius:7px; font-size:12px; cursor:pointer; border:none; background:transparent; color:var(--text-secondary); font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+  .mode-btn.active { background:rgba(255,255,255,0.09); color:var(--text-primary); }
+
+  .lang-select {
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    color:var(--text-primary);
+    padding:7px 12px;
+    border-radius:10px;
+    font-family:'DM Sans',sans-serif;
+    font-size:12px;
+    cursor:pointer;
+    outline:none;
+  }
+  .lang-select option { background:#0d1428; color:white; }
+
+  /* LOGIN */
+  #login { min-height:100vh; }
+  .login-layout { display:grid; grid-template-columns:1fr 1fr; min-height:100vh; }
+  .login-left {
+    padding:60px 56px; display:flex; flex-direction:column; justify-content:center;
+    border-right:1px solid rgba(255,255,255,0.04);
+    background:linear-gradient(135deg,rgba(10,20,60,0.4) 0%,rgba(4,7,15,0.2) 100%);
+  }
+  .login-brand { margin-bottom:48px; }
+  .login-logo { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; letter-spacing:0.2em; margin-bottom:4px; }
+  .login-logo span { color:var(--accent-blue); }
+  .login-tagline { font-size:10px; color:var(--text-muted); letter-spacing:0.16em; text-transform:uppercase; }
+  .login-headline { font-family:'Cormorant Garamond',serif; font-size:48px; font-weight:300; line-height:1.1; margin-bottom:20px; letter-spacing:0.01em; }
+  .login-body { font-size:14px; color:var(--text-secondary); line-height:1.8; margin-bottom:40px; max-width:380px; }
+  .login-proof { display:flex; gap:0; margin-bottom:40px; }
+  .proof-item { padding-right:32px; margin-right:32px; border-right:1px solid rgba(255,255,255,0.07); }
+  .proof-item:last-child { border-right:none; }
+  .proof-num { font-family:'DM Sans',sans-serif; font-size:26px; font-weight:500; color:var(--accent-blue); line-height:1; margin-bottom:4px; letter-spacing:-0.02em; }
+  .proof-label { font-size:11px; color:var(--text-muted); }
+  .login-quote { font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; color:var(--text-muted); line-height:1.6; padding-left:16px; border-left:2px solid rgba(74,127,255,0.25); max-width:360px; }
+  .login-right { display:flex; align-items:center; justify-content:center; padding:40px; }
+  .login-card-new { width:100%; max-width:400px; padding:44px 40px; text-align:center; }
+  .login-gem-wrap { position:relative; width:64px; height:64px; margin:0 auto 28px; }
+  .gem-pulse { position:absolute; inset:-12px; border-radius:50%; border:1px solid rgba(74,127,255,0.1); animation:pulse 3s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
+  .card-title { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; letter-spacing:0.06em; margin-bottom:6px; }
+  .card-sub { font-size:13px; color:var(--text-secondary); margin-bottom:28px; }
+  .login-divider-line { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .login-divider-line::before,.login-divider-line::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.07); }
+  .login-divider-line span { font-size:11px; color:var(--text-muted); letter-spacing:0.06em; white-space:nowrap; }
+  .google-btn {
+    width:100%; padding:13px 20px; border-radius:13px;
+    border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05);
+    color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:14px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:11px; transition:all 0.25s;
+    margin-bottom:24px;
+  }
+  .google-btn:hover { background:rgba(255,255,255,0.09); transform:translateY(-2px); border-color:rgba(255,255,255,0.18); }
+  .login-features { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; text-align:left; }
+  .lf-item { display:flex; align-items:center; gap:10px; }
+  .lf-dot { width:5px; height:5px; border-radius:50%; background:var(--accent-blue); opacity:0.5; flex-shrink:0; }
+  .lf-text { font-size:12px; color:var(--text-secondary); }
+  .login-note { font-size:11px; color:var(--text-muted); line-height:1.6; }
+
+  /* WELCOME */
+  .center-body { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 32px; }
+  .welcome-content { max-width:700px; width:100%; }
+  .big-title { font-family:'Cormorant Garamond',serif; font-size:54px; font-weight:300; line-height:1.1; margin-bottom:14px; letter-spacing:0.02em; }
+  .big-title em { color:var(--accent-blue); font-style:normal; }
+  .desc { font-size:15px; color:var(--text-secondary); line-height:1.75; margin-bottom:36px; }
+  .how-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:36px; }
+  .how-card { padding:18px; border-radius:16px; }
+  .how-num { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:300; color:var(--accent-blue); opacity:0.55; margin-bottom:7px; }
+  .how-label { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+  .tag { display:inline-flex; padding:5px 11px; border-radius:8px; font-size:11px; color:rgba(74,127,255,0.8); background:rgba(74,127,255,0.08); border:1px solid rgba(74,127,255,0.14); margin:3px; }
+  .section-micro { font-size:11px; color:var(--text-muted); letter-spacing:0.09em; text-transform:uppercase; margin-bottom:9px; }
+
+  /* RULES */
+  .rules-content { max-width:560px; width:100%; }
+  .rules-title { font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:300; margin-bottom:7px; }
+  .rules-sub { font-size:13px; color:var(--text-secondary); margin-bottom:28px; }
+  .rule-item { display:flex; align-items:flex-start; gap:13px; padding:14px 18px; border-radius:13px; margin-bottom:9px; border:1px solid rgba(255,74,107,0.13); background:rgba(255,74,107,0.055); }
+  .rule-x { width:18px; height:18px; border-radius:50%; background:rgba(255,74,107,0.18); border:1px solid rgba(255,74,107,0.28); display:flex; align-items:center; justify-content:center; font-size:9px; color:#ff8fa3; flex-shrink:0; margin-top:2px; }
+  .rule-text { font-size:13px; color:var(--text-secondary); line-height:1.5; }
+  .rule-text strong { color:var(--text-primary); font-weight:500; }
+
+  /* ORACLE LAYOUT */
+  .oracle-body { flex:1; display:grid; grid-template-columns:420px 1fr; overflow:hidden; height:calc(100vh - 65px); }
+  .input-panel {
+    padding:32px 28px; border-right:1px solid rgba(255,255,255,0.045);
+    overflow-y:auto; display:flex; flex-direction:column; gap:0;
+    background:rgba(255,255,255,0.01);
+  }
+  .input-section { margin-bottom:22px; }
+  .panel-label {
+    font-size:10px; color:var(--accent-blue); letter-spacing:0.14em;
+    text-transform:uppercase; margin-bottom:8px; opacity:0.7;
+    display:flex; align-items:center; gap:6px;
+  }
+  .panel-label::before { content:''; width:16px; height:1px; background:rgba(74,127,255,0.4); }
+  .crystal-input {
+    width:100%; background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.07); border-radius:14px;
+    padding:14px 16px; color:var(--text-primary);
+    font-family:'DM Sans',sans-serif; font-size:13px;
+    resize:none; outline:none; transition:all 0.25s; line-height:1.7;
+  }
+  .crystal-input:focus { border-color:rgba(74,127,255,0.35); background:rgba(74,127,255,0.03); box-shadow:0 0 0 3px rgba(74,127,255,0.06); }
+  .crystal-input::placeholder { color:rgba(255,255,255,0.2); }
+  .options-stack { display:flex; flex-direction:column; gap:8px; }
+  .opt-row { display:flex; gap:8px; align-items:center; }
+  .opt-letter {
+    width:32px; height:32px; border-radius:9px;
+    background:linear-gradient(135deg,rgba(74,127,255,0.15),rgba(74,127,255,0.05));
+    border:1px solid rgba(74,127,255,0.22);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:var(--accent-blue); flex-shrink:0; font-weight:600;
+    letter-spacing:0.02em;
+  }
+  .input-divider { height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent); margin:6px 0 22px; }
+  .analyze-btn {
+    width:100%; padding:15px; border-radius:14px;
+    border:1px solid rgba(74,127,255,0.3);
+    background:linear-gradient(135deg,rgba(74,127,255,0.18),rgba(74,127,255,0.08));
+    color:#8bbfff; font-family:'DM Sans',sans-serif; font-size:13px;
+    cursor:pointer; transition:all 0.3s; font-weight:500; letter-spacing:0.03em;
+    position:relative; overflow:hidden;
+  }
+  .analyze-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.04),transparent); }
+  .analyze-btn:hover:not(:disabled) { background:linear-gradient(135deg,rgba(74,127,255,0.28),rgba(74,127,255,0.14)); transform:translateY(-1px); border-color:rgba(74,127,255,0.5); box-shadow:0 8px 24px rgba(74,127,255,0.15); }
+  .analyze-btn:disabled { opacity:0.3; cursor:not-allowed; }
+  .powered { font-size:10px; color:var(--text-muted); text-align:center; margin-top:12px; letter-spacing:0.04em; }
+
+  /* OUTPUT */
+  .output-panel { flex:1; padding:0; overflow-y:auto; display:flex; flex-direction:column; background:rgba(0,0,0,0.15); }
+  .output-inner { padding:36px 40px; flex:1; display:flex; flex-direction:column; }
+  .empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); text-align:center; gap:14px; }
+  .empty-state p { font-size:13px; line-height:1.7; max-width:240px; opacity:0.6; }
+  .empty-orb { width:80px; height:80px; border-radius:50%; border:1px solid rgba(74,127,255,0.1); display:flex; align-items:center; justify-content:center; position:relative; }
+  .empty-orb::before { content:''; position:absolute; inset:8px; border-radius:50%; border:1px solid rgba(74,127,255,0.08); }
+  .empty-orb::after { content:''; position:absolute; inset:16px; border-radius:50%; border:1px solid rgba(74,127,255,0.06); }
+
+  .loading-state { display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:18px; }
+  .loader-ring { width:44px; height:44px; border:1px solid rgba(74,127,255,0.13); border-top-color:rgba(74,127,255,0.7); border-radius:50%; animation:spin 1s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-step { font-size:12px; color:var(--text-muted); opacity:0; transition:opacity 0.5s; text-align:center; }
+  .loading-step.on { opacity:1; color:var(--text-secondary); }
+
+  .result-wrap { display:none; flex-direction:column; gap:22px; }
+
+  .result-header { display:flex; align-items:center; gap:14px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .rec-label { font-size:10px; color:var(--text-muted); letter-spacing:0.09em; text-transform:uppercase; margin-bottom:4px; }
+  .rec-name { font-size:20px; font-weight:500; color:var(--text-primary); }
+  .best-badge { padding:7px 16px; border-radius:10px; font-size:11px; font-weight:500; background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.22); color:#00e5a0; white-space:nowrap; }
+
+  .section-title { font-size:10px; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:11px; }
+  .body-text { font-size:14px; color:var(--text-secondary); line-height:1.75; }
+
+  .opt-card { padding:16px 18px; border-radius:14px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.055); background:rgba(255,255,255,0.025); position:relative; }
+  .opt-card.best { border-color:rgba(74,127,255,0.28); background:rgba(74,127,255,0.065); }
+  .opt-card.best::before { content:'RECOMMENDED'; position:absolute; top:-1px; right:14px; background:rgba(74,127,255,0.18); border:1px solid rgba(74,127,255,0.28); border-top:none; border-radius:0 0 8px 8px; padding:3px 10px; font-size:9px; color:#7ab0ff; letter-spacing:0.1em; }
+  .opt-card-title { font-size:13px; font-weight:500; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+  .opt-card-body { font-size:13px; color:var(--text-secondary); line-height:1.6; }
+  .pros-cons { display:flex; gap:14px; margin-top:9px; flex-wrap:wrap; }
+  .pro { font-size:11px; color:rgba(0,229,160,0.75); }
+  .con { font-size:11px; color:rgba(255,74,107,0.75); }
+  .score-wrap { margin-top:10px; }
+  .score-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:4px; }
+  .score-track { height:3px; background:rgba(255,255,255,0.055); border-radius:2px; overflow:hidden; }
+  .score-fill { height:100%; border-radius:2px; background:linear-gradient(90deg,rgba(74,127,255,0.55),rgba(0,212,255,0.8)); }
+
+  .chip { padding:4px 10px; border-radius:8px; font-size:11px; color:var(--text-muted); background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.065); display:inline-block; margin:3px; }
+
+  .user-avatar { width:30px; height:30px; border-radius:50%; background:rgba(74,127,255,0.18); border:1px solid rgba(74,127,255,0.28); display:flex; align-items:center; justify-content:center; font-size:12px; color:#7ab0ff; font-weight:500; }
+
+
+  /* WELCOME HERO */
+  .welcome-hero { flex:1; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; height:calc(100vh - 65px); }
+  .hero-left { padding:48px 44px; display:flex; flex-direction:column; justify-content:center; border-right:1px solid rgba(255,255,255,0.045); overflow-y:auto; gap:28px; }
+  .hero-right { padding:40px 44px; display:flex; flex-direction:column; justify-content:center; gap:20px; overflow-y:auto; }
+
+  .how-it-works-label { font-size:10px; color:var(--accent-blue); letter-spacing:0.16em; text-transform:uppercase; opacity:0.7; }
+  .how-steps { display:flex; flex-direction:column; gap:0; }
+  .how-step { display:flex; gap:18px; align-items:flex-start; }
+  .step-num { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; color:var(--accent-blue); opacity:0.4; line-height:1; flex-shrink:0; width:32px; }
+  .step-content { padding-bottom:4px; }
+  .step-title { font-size:14px; font-weight:500; color:var(--text-primary); margin-bottom:5px; }
+  .step-body { font-size:12px; color:var(--text-secondary); line-height:1.6; }
+  .step-connector { width:1px; height:20px; background:linear-gradient(to bottom,rgba(74,127,255,0.2),transparent); margin-left:15px; }
+  .example-block { padding:18px 20px; border-radius:14px; }
+  .example-label { font-size:10px; color:var(--accent-blue); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; opacity:0.6; }
+  .example-text { font-size:13px; color:var(--text-secondary); line-height:1.6; font-style:italic; margin-bottom:10px; }
+  .example-arrow { font-size:11px; color:rgba(0,229,160,0.7); }
+
+  .why-title { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:300; letter-spacing:0.03em; }
+  .why-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .why-card { padding:16px 18px; border-radius:14px; }
+  .why-icon { margin-bottom:10px; }
+  .why-card-title { font-size:13px; font-weight:500; color:var(--text-primary); margin-bottom:5px; }
+  .why-card-body { font-size:12px; color:var(--text-secondary); line-height:1.55; }
+  .works-for { }
+  .works-label { font-size:10px; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
+  .works-tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .works-tag { padding:4px 11px; border-radius:20px; font-size:11px; color:var(--text-secondary); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); }
+  .hero-cta { padding:13px 28px; border-radius:13px; border:1px solid rgba(74,127,255,0.35); background:rgba(74,127,255,0.14); color:#8bbfff; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; transition:all 0.25s; display:inline-flex; align-items:center; gap:8px; font-weight:500; align-self:flex-start; }
+  .hero-cta:hover { background:rgba(74,127,255,0.24); transform:translateY(-2px); }
+
+  /* OLD HERO CSS KEPT FOR COMPAT */
+  .welcome-hero { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden; height:calc(100vh - 65px); }
+  .hero-left { padding:60px 48px; display:flex; flex-direction:column; justify-content:center; border-right:1px solid rgba(255,255,255,0.045); overflow-y:auto; }
+  .hero-right { padding:40px 40px; display:flex; flex-direction:column; justify-content:center; gap:24px; overflow-y:auto; }
+  .hero-eyebrow { font-size:11px; color:var(--accent-blue); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:16px; opacity:0.8; }
+  .hero-title { font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:300; line-height:1.08; margin-bottom:20px; letter-spacing:0.02em; }
+  .hero-title em { color:var(--accent-blue); font-style:normal; }
+  .hero-desc { font-size:15px; color:var(--text-secondary); line-height:1.8; margin-bottom:36px; max-width:440px; }
+  .hero-stats { display:flex; align-items:center; gap:0; margin-bottom:36px; }
+  .stat-item { text-align:center; padding:0 28px; }
+  .stat-item:first-child { padding-left:0; }
+  .stat-num { font-family:'DM Sans',sans-serif; font-size:28px; font-weight:500; color:var(--accent-blue); line-height:1; margin-bottom:4px; letter-spacing:-0.02em; }
+  .stat-label { font-size:11px; color:var(--text-muted); letter-spacing:0.04em; }
+  .stat-divider { width:1px; height:36px; background:rgba(255,255,255,0.08); }
+  .hero-cta { padding:14px 32px; border-radius:14px; border:1px solid rgba(74,127,255,0.35); background:rgba(74,127,255,0.15); color:#7ab0ff; font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; transition:all 0.25s; display:inline-flex; align-items:center; gap:8px; letter-spacing:0.02em; }
+  .hero-cta:hover { background:rgba(74,127,255,0.25); transform:translateY(-2px); border-color:rgba(74,127,255,0.55); }
+  .feature-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .feat-card { padding:18px 20px; border-radius:16px; }
+  .feat-icon { margin-bottom:10px; }
+  .feat-title { font-size:13px; font-weight:500; color:var(--text-primary); margin-bottom:5px; }
+  .feat-body { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+  .use-cases-row { }
+  .use-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .use-tag { padding:5px 12px; border-radius:20px; font-size:11px; color:var(--text-secondary); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); }
+
+  /* RULES REDESIGN */
+  .rules-eyebrow { font-size:11px; color:var(--accent-blue); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:12px; opacity:0.8; }
+  .rules-grid { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .rule-example { font-size:11px; color:var(--text-muted); margin-top:5px; font-style:italic; }
+  .rule-example.allowed { color:rgba(0,229,160,0.5); }
+  .rule-allowed { border-color:rgba(0,229,160,0.15) !important; background:rgba(0,229,160,0.04) !important; }
+  .rule-check { width:18px; height:18px; border-radius:50%; background:rgba(0,229,160,0.15); border:1px solid rgba(0,229,160,0.3); display:flex; align-items:center; justify-content:center; font-size:9px; color:#00e5a0; flex-shrink:0; margin-top:2px; }
+  .rules-disclaimer { font-size:11px; color:var(--text-muted); line-height:1.7; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02); }
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
+  .fadein { animation:fi 0.4s ease forwards; }
+  @keyframes fi { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="page active">
+  <div class="login-layout">
+    <!-- LEFT PANEL -->
+    <div class="login-left">
+      <div class="login-brand">
+        <div class="login-logo">ORA<span>CLE</span></div>
+        <div class="login-tagline">Decision Intelligence</div>
+      </div>
+      <div class="login-headline">
+        Make better decisions.<br>Every time.
+      </div>
+      <div class="login-body">
+        Stop guessing. Oracle searches thousands of real-world cases, scores your options, and tells you exactly which path gives you the highest probability of success.
+      </div>
+      <div class="login-proof">
+        <div class="proof-item">
+          <div class="proof-num">98%</div>
+          <div class="proof-label">Accuracy Rate</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-num">10+</div>
+          <div class="proof-label">Languages</div>
+        </div>
+        <div class="proof-item">
+          <div class="proof-num">∞</div>
+          <div class="proof-label">Use Cases</div>
+        </div>
+      </div>
+      <div class="login-quote">
+        "The quality of your decisions determines the quality of your life."
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="login-right">
+      <div class="login-card-new glass">
+        <div class="login-gem-wrap">
+          <div class="gem-pulse"></div>
+          <svg width="64" height="64" viewBox="0 0 72 72" fill="none">
+            <polygon points="36,4 64,22 64,50 36,68 8,50 8,22" fill="rgba(74,127,255,0.06)" stroke="rgba(74,127,255,0.35)" stroke-width="0.8"/>
+            <polygon points="36,14 56,26 56,46 36,58 16,46 16,26" fill="rgba(0,212,255,0.03)" stroke="rgba(0,212,255,0.15)" stroke-width="0.6"/>
+            <polygon points="36,24 50,32 50,42 36,50 22,42 22,32" fill="rgba(74,127,255,0.08)" stroke="rgba(74,127,255,0.22)" stroke-width="0.5"/>
+            <circle cx="36" cy="36" r="3.5" fill="rgba(74,127,255,0.8)"/>
+            <line x1="36" y1="4" x2="36" y2="24" stroke="rgba(74,127,255,0.15)" stroke-width="0.5"/>
+            <line x1="64" y1="22" x2="50" y2="32" stroke="rgba(74,127,255,0.15)" stroke-width="0.5"/>
+            <line x1="64" y1="50" x2="50" y2="42" stroke="rgba(74,127,255,0.15)" stroke-width="0.5"/>
+            <line x1="36" y1="68" x2="36" y2="50" stroke="rgba(74,127,255,0.15)" stroke-width="0.5"/>
+            <line x1="8" y1="50" x2="22" y2="42" stroke="rgba(74,127,255,0.15)" stroke-width="0.5"/>
+            <line x1="8" y1="22" x2="22" y2="32" stroke="rgba(74,127,255,0.15)" stroke-width="0.5"/>
+          </svg>
+        </div>
+
+        <div class="card-title">Welcome back</div>
+        <div class="card-sub">Sign in to access Oracle</div>
+
+        <div class="login-divider-line"><span>continue with</span></div>
+
+        <button class="google-btn" onclick="handleLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="login-features">
+          <div class="lf-item">
+            <div class="lf-dot"></div>
+            <div class="lf-text">Instant AI analysis on any decision</div>
+          </div>
+          <div class="lf-item">
+            <div class="lf-dot"></div>
+            <div class="lf-text">Backed by thousands of real-world cases</div>
+          </div>
+          <div class="lf-item">
+            <div class="lf-dot"></div>
+            <div class="lf-text">Never stored — completely private</div>
+          </div>
+        </div>
+
+        <div class="login-note">By continuing you agree to Oracle's Terms of Service.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WELCOME -->
+<div id="welcome" class="page">
+  <div class="topbar">
+    <div class="logo">ORA<span>CLE</span></div>
+    <div class="topbar-right">
+      <select class="lang-select" onchange="setLang(this.value)" id="langSelect">
+        <option value="en">🌐 English</option>
+        <option value="zh">🇨🇳 简体中文</option>
+        <option value="zht">🇹🇼 繁體中文</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="de">🇩🇪 Deutsch</option>
+      </select>
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('clear',this)">Clear</button>
+        <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
+      </div>
+      <button class="btn primary" onclick="goTo('rules')" data-i18n="next">Next →</button>
+      <button class="btn danger" onclick="goTo('login')" data-i18n="signout">Sign out</button>
+    </div>
+  </div>
+  <div class="welcome-hero">
+    <div class="hero-left fadein">
+      <div class="hero-eyebrow">AI · Decision Intelligence</div>
+      <div class="hero-title" data-i18n-html="welcomeTitle">Welcome to<br><em>Oracle.</em></div>
+      <div class="hero-desc" data-i18n="welcomeDesc">Oracle is a decision intelligence engine. Describe your situation, the decision you face, and your options — Oracle reasons through similar cases and tells you which path gives the highest probability of success.</div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">98%</div>
+          <div class="stat-label" data-i18n="stat1">Decision Accuracy</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">10+</div>
+          <div class="stat-label" data-i18n="stat2">Languages</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-num">∞</div>
+          <div class="stat-label" data-i18n="stat3">Use Cases</div>
+        </div>
+      </div>
+      <button class="hero-cta" onclick="goTo('rules')" data-i18n="getStarted">Get Started →</button>
+    </div>
+    <div class="hero-right fadein">
+      <div class="feature-cards">
+        <div class="feat-card glass">
+          <div class="feat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(74,127,255,0.8)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div class="feat-title" data-i18n="feat1title">Instant Analysis</div>
+          <div class="feat-body" data-i18n="feat1body">Get results in seconds, not hours. No consultants, no waiting.</div>
+        </div>
+        <div class="feat-card glass">
+          <div class="feat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(74,127,255,0.8)" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="feat-title" data-i18n="feat2title">Real-World Cases</div>
+          <div class="feat-body" data-i18n="feat2body">Every recommendation is backed by thousands of similar real decisions and their outcomes.</div>
+        </div>
+        <div class="feat-card glass">
+          <div class="feat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(74,127,255,0.8)" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="feat-title" data-i18n="feat3title">Scored Options</div>
+          <div class="feat-body" data-i18n="feat3body">Every option gets a success probability score so you can compare paths clearly.</div>
+        </div>
+        <div class="feat-card glass">
+          <div class="feat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(74,127,255,0.8)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <div class="feat-title" data-i18n="feat4title">10+ Languages</div>
+          <div class="feat-body" data-i18n="feat4body">Full interface and AI responses in your language. Switch anytime.</div>
+        </div>
+      </div>
+      <div class="use-cases-row">
+        <div class="section-micro" data-i18n="usedFor">Works for any decision</div>
+        <div class="use-tags">
+          <span class="use-tag" data-i18n="uc1">Career moves</span>
+          <span class="use-tag" data-i18n="uc2">Business strategy</span>
+          <span class="use-tag" data-i18n="uc3">Investments</span>
+          <span class="use-tag" data-i18n="uc4">Education</span>
+          <span class="use-tag" data-i18n="uc5">Personal life</span>
+          <span class="use-tag" data-i18n="uc6">Product decisions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div id="rules" class="page">
+  <div class="topbar">
+    <div class="logo">ORA<span>CLE</span></div>
+    <div class="topbar-right">
+      <select class="lang-select" onchange="setLang(this.value)" id="langSelect2">
+        <option value="en">🌐 English</option>
+        <option value="zh">🇨🇳 简体中文</option>
+        <option value="zht">🇹🇼 繁體中文</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="de">🇩🇪 Deutsch</option>
+      </select>
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('clear',this)">Clear</button>
+        <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
+      </div>
+      <button class="btn" onclick="goTo('welcome')" data-i18n="back">← Back</button>
+      <button class="btn danger" onclick="goTo('login')" data-i18n="signout">Sign out</button>
+    </div>
+  </div>
+  <div class="center-body">
+    <div class="rules-content fadein" style="max-width:680px;">
+      <div class="rules-eyebrow">Usage Policy</div>
+      <div class="rules-title" data-i18n="rulesTitle">Before we begin.</div>
+      <div class="rules-sub" data-i18n="rulesSub">Oracle is a tool for ethical decision-making. Read and agree to proceed.</div>
+      <div class="rules-grid">
+        <div class="rule-item">
+          <div class="rule-x">✕</div>
+          <div class="rule-text">
+            <strong data-i18n="r1h">No harmful intent.</strong>
+            <span data-i18n="r1b"> Do not ask how to harm, threaten, or hurt any person or group.</span>
+            <div class="rule-example" data-i18n="r1ex">e.g. "How do I hurt someone" → Blocked immediately</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-x">✕</div>
+          <div class="rule-text">
+            <strong data-i18n="r2h">No illegal activities.</strong>
+            <span data-i18n="r2b"> Do not ask for advice on robbery, theft, fraud, hacking, or any criminal act.</span>
+            <div class="rule-example" data-i18n="r2ex">e.g. "Should I rob a bank or hack a system" → Blocked immediately</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-x">✕</div>
+          <div class="rule-text">
+            <strong data-i18n="r3h">No weapons or violence.</strong>
+            <span data-i18n="r3b"> Do not request guidance on acquiring, building, or using weapons to cause harm.</span>
+            <div class="rule-example" data-i18n="r3ex">e.g. "Should I buy an illegal weapon" → Blocked immediately</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-x">✕</div>
+          <div class="rule-text">
+            <strong data-i18n="r4h">No manipulation or coercion.</strong>
+            <span data-i18n="r4b"> Do not use Oracle to plan psychological manipulation, blackmail, or coercion of others.</span>
+            <div class="rule-example" data-i18n="r4ex">e.g. "How do I manipulate my friend into doing X" → Blocked immediately</div>
+          </div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-x">✕</div>
+          <div class="rule-text">
+            <strong data-i18n="r5h">No self-harm or dangerous behavior.</strong>
+            <span data-i18n="r5b"> Do not ask for advice that could lead to personal harm or endangerment of yourself or others.</span>
+            <div class="rule-example" data-i18n="r5ex">e.g. "Should I take this dangerous drug" → Blocked immediately</div>
+          </div>
+        </div>
+        <div class="rule-item rule-allowed">
+          <div class="rule-check">✓</div>
+          <div class="rule-text">
+            <strong data-i18n="r6h">Real decisions only — all topics welcome.</strong>
+            <span data-i18n="r6b"> Career, business, finance, relationships, education, health, technology — if it's a real decision with real options, Oracle can help.</span>
+            <div class="rule-example allowed" data-i18n="r6ex">e.g. "Should I quit my job, start a business, or go back to school?" → Perfect use case</div>
+          </div>
+        </div>
+      </div>
+      <div class="rules-disclaimer" data-i18n="rulesDisclaimer">Violations are detected automatically and will block your request. Repeated violations may terminate your session. Oracle is powered by AI — always apply your own judgment to critical decisions.</div>
+      <button class="btn success-btn" style="width:100%;padding:15px;border-radius:15px;font-size:14px;margin-top:20px;" onclick="goTo('oracle')" data-i18n="agree">I Agree — Take Me to Oracle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORACLE -->
+<div id="oracle" class="page">
+  <div class="topbar">
+    <div class="logo">ORA<span>CLE</span></div>
+    <div class="topbar-right">
+      <select class="lang-select" onchange="setLang(this.value)" id="langSelect3">
+        <option value="en">🌐 English</option>
+        <option value="zh">🇨🇳 简体中文</option>
+        <option value="zht">🇹🇼 繁體中文</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="ja">🇯🏻 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="de">🇩🇪 Deutsch</option>
+      </select>
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('clear',this)">Clear</button>
+        <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
+      </div>
+      <div class="user-avatar" id="userInitials">D</div>
+      <button class="btn danger" onclick="goTo('login')" data-i18n="signout">Sign out</button>
+    </div>
+  </div>
+  <div class="oracle-body">
+    <!-- INPUT PANEL -->
+    <div class="input-panel">
+      <div style="margin-bottom:28px;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:0.04em;margin-bottom:4px;">Decision Console</div>
+        <div style="font-size:11px;color:var(--text-muted);">Fill in all fields and let Oracle analyze your best path</div>
+      </div>
+
+      <div class="input-section">
+        <div class="panel-label" data-i18n="yourSituation">Your Situation</div>
+        <textarea class="crystal-input" id="situation" rows="4" data-i18n-ph="situationPh" placeholder="Describe the context and background..."></textarea>
+      </div>
+
+      <div class="input-section">
+        <div class="panel-label" data-i18n="theDecision">The Decision</div>
+        <textarea class="crystal-input" id="decision" rows="3" data-i18n-ph="decisionPh" placeholder="What exactly are you deciding?"></textarea>
+      </div>
+
+      <div class="input-divider"></div>
+
+      <div class="input-section">
+        <div class="panel-label" data-i18n="yourOptions">Your Options</div>
+        <div class="options-stack">
+          <div class="opt-row"><div class="opt-letter">A</div><input type="text" class="crystal-input" id="opt1" style="height:42px;" data-i18n-ph="optA" placeholder="Option A"></div>
+          <div class="opt-row"><div class="opt-letter">B</div><input type="text" class="crystal-input" id="opt2" style="height:42px;" data-i18n-ph="optB" placeholder="Option B"></div>
+          <div class="opt-row"><div class="opt-letter">C</div><input type="text" class="crystal-input" id="opt3" style="height:42px;" data-i18n-ph="optC" placeholder="Option C (optional)"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:auto;padding-top:16px;">
+        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()" data-i18n="analyzeBtn">Analyze Decision →</button>
+        <div class="powered">Powered by Groq · Llama 3.3 70B</div>
+      </div>
+    </div>
+
+    <!-- OUTPUT PANEL -->
+    <div class="output-panel">
+      <div class="output-inner">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-orb">
+            <svg width="24" height="24" viewBox="0 0 72 72" fill="none">
+              <polygon points="36,4 64,22 64,50 36,68 8,50 8,22" fill="rgba(74,127,255,0.08)" stroke="rgba(74,127,255,0.3)" stroke-width="1"/>
+              <circle cx="36" cy="36" r="4" fill="rgba(74,127,255,0.5)"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;margin-bottom:8px;color:rgba(255,255,255,0.3);">Awaiting input</div>
+            <p data-i18n="emptyMsg">Enter your situation, decision, and options — Oracle will predict the best path forward.</p>
+          </div>
+        </div>
+        <div class="loading-state" id="loadingState">
+          <div class="loader-ring"></div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div class="loading-step" id="ls1" data-i18n="ls1">Analyzing your situation...</div>
+            <div class="loading-step" id="ls2" data-i18n="ls2">Searching similar real-world cases...</div>
+            <div class="loading-step" id="ls3" data-i18n="ls3">Scoring each option...</div>
+            <div class="loading-step" id="ls4" data-i18n="ls4">Generating your recommendation...</div>
+          </div>
+        </div>
+        <div class="result-wrap" id="resultWrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GROQ_KEY = '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';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const BLOCKED = ['kill','murder','hack','hacking','rob','robbery','steal','bomb','weapon','poison','assault','rape','hurt someone','harm someone','attack','shoot','stab','trafficking','suicide','self-harm'];
+
+// ── TRANSLATIONS ──
+const T = {
+  en: {
+    next:'Next →', back:'← Back', signout:'Sign out', getStarted:'Get Started →',
+    welcomeTitle:'Welcome to<br><em>Oracle.</em>',
+    welcomeDesc:'Oracle is a decision intelligence engine. Describe your situation, the decision you face, and your options — Oracle reasons through similar cases and tells you which path gives the highest probability of success.',
+    step1:'Describe your situation, decision, and options in plain language',
+    step2:'Oracle searches similar real-world cases and expert knowledge',
+    step3:'Get a scored recommendation with full reasoning behind it',
+    sourcedFrom:'Intelligence sourced from',
+    src1:'Academic Research', src2:'Case Studies', src3:'Expert Analysis', src4:'Historical Data', src5:'Industry Reports',
+    rulesTitle:'Before we begin.', rulesSub:'Oracle is a tool for ethical decision-making. Read and agree to proceed.',
+    r1h:'No harmful intent.', r1b:'Do not ask how to harm, threaten, or hurt any person or group.',
+    r2h:'No illegal activities.', r2b:'Do not ask for advice on robbery, theft, fraud, hacking, or any criminal act.',
+    r3h:'No weapons or violence.', r3b:'Do not request guidance on acquiring or using weapons to cause harm.',
+    r4h:'No manipulation.', r4b:'Do not use Oracle to plan psychological manipulation or coercion of others.',
+    r5h:'Real decisions only.', r5b:'Oracle is built for genuine academic, professional, personal, or business situations.',
+    agree:'I Agree — Take Me to Oracle',
+    yourSituation:'Your Situation', theDecision:'The Decision', yourOptions:'Your Options',
+    situationPh:'Describe the context and background...', decisionPh:'What exactly are you deciding?',
+    optA:'Option A', optB:'Option B', optC:'Option C (optional)',
+    analyzeBtn:'Analyze Decision →',
+    emptyMsg:'Enter your situation, decision, and options — Oracle will predict the best path forward.',
+    ls1:'Analyzing your situation...', ls2:'Searching similar real-world cases...', ls3:'Scoring each option...', ls4:'Generating your recommendation...',
+    recommendation:'Recommendation', bestPath:'Best Path',
+    decisionContext:'Decision Context', similarCases:'Similar Cases Found',
+    optionAnalysis:'Option Analysis', whyWins:'Why This Option Wins',
+    intSources:'Intelligence Sources', predictedSuccess:'Predicted success',
+    blocked:'Request Blocked', blockedMsg:"This request violates Oracle's usage policy.",
+    langName:'English', respondIn:'Respond entirely in English.',
+    stat1:'Decision Accuracy', stat2:'Languages', stat3:'Use Cases',
+    feat1title:'Instant Analysis', feat1body:'Get results in seconds, not hours. No consultants, no waiting.',
+    feat2title:'Real-World Cases', feat2body:'Every recommendation is backed by thousands of similar real decisions and their outcomes.',
+    feat3title:'Scored Options', feat3body:'Every option gets a success probability score so you can compare paths clearly.',
+    feat4title:'10+ Languages', feat4body:'Full interface and AI responses in your language. Switch anytime.',
+    usedFor:'Works for any decision',
+    uc1:'Career moves', uc2:'Business strategy', uc3:'Investments', uc4:'Education', uc5:'Personal life', uc6:'Product decisions',
+    r1ex:'e.g. "How do I hurt someone" → Blocked immediately',
+    r2ex:'e.g. "Should I rob a bank or hack a system" → Blocked immediately',
+    r3ex:'e.g. "Should I buy an illegal weapon" → Blocked immediately',
+    r4ex:'e.g. "How do I manipulate my friend into doing X" → Blocked immediately',
+    r5h:'No self-harm or dangerous behavior.', r5b:' Do not ask for advice that could lead to personal harm or endangerment.',
+    r5ex:'e.g. "Should I take this dangerous drug" → Blocked immediately',
+    r6h:'Real decisions only — all topics welcome.', r6b:' Career, business, finance, relationships, education, health, technology — Oracle can help.',
+    r6ex:'e.g. "Should I quit my job, start a business, or go back to school?" → Perfect use case',
+    rulesDisclaimer:'Violations are detected automatically and will block your request. Oracle is powered by AI — always apply your own judgment to critical decisions.'
+  },
+  zh: {
+    next:'下一步 →', back:'← 返回', signout:'退出', getStarted:'开始使用 →',
+    welcomeTitle:'欢迎使用<br><em>Oracle。</em>',
+    welcomeDesc:'Oracle 是一个决策智能引擎。描述你的情况、面临的决定和选项 — Oracle 将分析相似案例并告诉你哪条路成功率最高。',
+    step1:'用简单语言描述你的情况、决定和选项', step2:'Oracle 搜索类似的真实案例和专家知识', step3:'获得带有完整推理的评分建议',
+    sourcedFrom:'数据来源', src1:'学术研究', src2:'案例研究', src3:'专家分析', src4:'历史数据', src5:'行业报告',
+    rulesTitle:'开始之前。', rulesSub:'Oracle 是一个用于道德决策的工具。请阅读并同意以继续。',
+    r1h:'不得有害意图。', r1b:'不要询问如何伤害、威胁或伤害任何人或群体。',
+    r2h:'不得非法活动。', r2b:'不要寻求抢劫、盗窃、欺诈、黑客攻击或任何犯罪行为的建议。',
+    r3h:'不得涉及武器或暴力。', r3b:'不要请求关于获取或使用武器造成伤害的指导。',
+    r4h:'不得操纵。', r4b:'不要使用 Oracle 策划心理操纵或胁迫他人。',
+    r5h:'仅限真实决策。', r5b:'Oracle 专为真实的学术、专业、个人或商业情况而建。',
+    agree:'我同意 — 进入 Oracle',
+    yourSituation:'你的情况', theDecision:'决策', yourOptions:'你的选项',
+    situationPh:'描述背景和情境...', decisionPh:'你具体在决定什么？',
+    optA:'选项 A', optB:'选项 B', optC:'选项 C（可选）',
+    analyzeBtn:'分析决策 →',
+    emptyMsg:'输入你的情况、决策和选项 — Oracle 将预测最佳路径。',
+    ls1:'分析你的情况...', ls2:'搜索类似真实案例...', ls3:'为每个选项评分...', ls4:'生成推荐结果...',
+    recommendation:'推荐结果', bestPath:'最佳路径',
+    decisionContext:'决策背景', similarCases:'发现的类似案例',
+    optionAnalysis:'选项分析', whyWins:'为何此选项胜出',
+    intSources:'情报来源', predictedSuccess:'预测成功率',
+    blocked:'请求被拦截', blockedMsg:'此请求违反了 Oracle 使用政策。',
+    langName:'中文', respondIn:'请完全用中文回答。'
+  },
+
+  zht: {
+    next:'下一步 →', back:'← 返回', signout:'登出', getStarted:'開始使用 →',
+    welcomeTitle:'歡迎使用<br><em>Oracle。</em>',
+    welcomeDesc:'Oracle 是一個決策智能引擎。描述你的情況、面臨的決定和選項 — Oracle 將分析相似案例並告訴你哪條路成功率最高。',
+    step1:'用簡單語言描述你的情況、決定和選項', step2:'Oracle 搜尋類似的真實案例和專家知識', step3:'獲得帶有完整推理的評分建議',
+    sourcedFrom:'資料來源', src1:'學術研究', src2:'案例研究', src3:'專家分析', src4:'歷史資料', src5:'產業報告',
+    rulesTitle:'開始之前。', rulesSub:'Oracle 是一個用於道德決策的工具。請閱讀並同意以繼續。',
+    r1h:'不得有害意圖。', r1b:'不要詢問如何傷害、威脅或傷害任何人或群體。',
+    r2h:'不得非法活動。', r2b:'不要尋求搶劫、盜竊、欺詐、駭客攻擊或任何犯罪行為的建議。',
+    r3h:'不得涉及武器或暴力。', r3b:'不要請求關於取得或使用武器造成傷害的指導。',
+    r4h:'不得操控。', r4b:'不要使用 Oracle 策劃心理操控或脅迫他人。',
+    r5h:'僅限真實決策。', r5b:'Oracle 專為真實的學術、專業、個人或商業情況而建。',
+    agree:'我同意 — 進入 Oracle',
+    yourSituation:'你的情況', theDecision:'決策', yourOptions:'你的選項',
+    situationPh:'描述背景和情境...', decisionPh:'你具體在決定什麼？',
+    optA:'選項 A', optB:'選項 B', optC:'選項 C（可選）',
+    analyzeBtn:'分析決策 →',
+    emptyMsg:'輸入你的情況、決策和選項 — Oracle 將預測最佳路徑。',
+    ls1:'分析你的情況...', ls2:'搜尋類似真實案例...', ls3:'為每個選項評分...', ls4:'生成推薦結果...',
+    recommendation:'推薦結果', bestPath:'最佳路徑',
+    decisionContext:'決策背景', similarCases:'發現的類似案例',
+    optionAnalysis:'選項分析', whyWins:'為何此選項勝出',
+    intSources:'情報來源', predictedSuccess:'預測成功率',
+    blocked:'請求被攔截', blockedMsg:'此請求違反了 Oracle 使用政策。',
+    langName:'繁體中文', respondIn:'請完全用繁體中文回答。'
+  },
+  es: {
+    next:'Siguiente →', back:'← Atrás', signout:'Cerrar sesión', getStarted:'Comenzar →',
+    welcomeTitle:'Bienvenido a<br><em>Oracle.</em>',
+    welcomeDesc:'Oracle es un motor de inteligencia de decisiones. Describe tu situación, la decisión que enfrentas y tus opciones — Oracle analiza casos similares y te dice qué camino tiene la mayor probabilidad de éxito.',
+    step1:'Describe tu situación, decisión y opciones en lenguaje sencillo', step2:'Oracle busca casos reales similares y conocimiento experto', step3:'Obtén una recomendación puntuada con razonamiento completo',
+    sourcedFrom:'Inteligencia obtenida de', src1:'Investigación académica', src2:'Estudios de caso', src3:'Análisis experto', src4:'Datos históricos', src5:'Informes de la industria',
+    rulesTitle:'Antes de comenzar.', rulesSub:'Oracle es una herramienta para la toma de decisiones éticas. Lee y acepta para continuar.',
+    r1h:'Sin intención dañina.', r1b:'No preguntes cómo dañar, amenazar o lastimar a ninguna persona o grupo.',
+    r2h:'Sin actividades ilegales.', r2b:'No pidas consejos sobre robo, fraude, piratería o cualquier acto criminal.',
+    r3h:'Sin armas ni violencia.', r3b:'No solicites orientación sobre adquirir o usar armas para causar daño.',
+    r4h:'Sin manipulación.', r4b:'No uses Oracle para planear manipulación psicológica o coerción.',
+    r5h:'Solo decisiones reales.', r5b:'Oracle está diseñado para situaciones académicas, profesionales, personales o comerciales genuinas.',
+    agree:'Acepto — Llevarme a Oracle',
+    yourSituation:'Tu situación', theDecision:'La decisión', yourOptions:'Tus opciones',
+    situationPh:'Describe el contexto y antecedentes...', decisionPh:'¿Qué exactamente estás decidiendo?',
+    optA:'Opción A', optB:'Opción B', optC:'Opción C (opcional)',
+    analyzeBtn:'Analizar decisión →',
+    emptyMsg:'Ingresa tu situación, decisión y opciones — Oracle predecirá el mejor camino.',
+    ls1:'Analizando tu situación...', ls2:'Buscando casos similares del mundo real...', ls3:'Puntuando cada opción...', ls4:'Generando tu recomendación...',
+    recommendation:'Recomendación', bestPath:'Mejor camino',
+    decisionContext:'Contexto de decisión', similarCases:'Casos similares encontrados',
+    optionAnalysis:'Análisis de opciones', whyWins:'Por qué gana esta opción',
+    intSources:'Fuentes de inteligencia', predictedSuccess:'Éxito predicho',
+    blocked:'Solicitud bloqueada', blockedMsg:'Esta solicitud viola la política de uso de Oracle.',
+    langName:'Español', respondIn:'Responde completamente en español.'
+  },
+  fr: {
+    next:'Suivant →', back:'← Retour', signout:'Déconnexion', getStarted:'Commencer →',
+    welcomeTitle:'Bienvenue sur<br><em>Oracle.</em>',
+    welcomeDesc:"Oracle est un moteur d'intelligence décisionnelle. Décrivez votre situation, la décision que vous devez prendre et vos options — Oracle analyse des cas similaires et vous indique le chemin le plus probable vers le succès.",
+    step1:'Décrivez votre situation, décision et options en langage simple', step2:'Oracle recherche des cas réels similaires et des connaissances expertes', step3:'Obtenez une recommandation notée avec un raisonnement complet',
+    sourcedFrom:'Intelligence tirée de', src1:'Recherche académique', src2:'Études de cas', src3:'Analyse experte', src4:'Données historiques', src5:"Rapports d'industrie",
+    rulesTitle:'Avant de commencer.', rulesSub:"Oracle est un outil pour la prise de décision éthique. Lisez et acceptez pour continuer.",
+    r1h:'Pas d\'intention nuisible.', r1b:'Ne demandez pas comment nuire, menacer ou blesser une personne ou un groupe.',
+    r2h:'Pas d\'activités illégales.', r2b:'Ne demandez pas de conseils sur le vol, la fraude, le piratage ou tout acte criminel.',
+    r3h:'Pas d\'armes ni de violence.', r3b:'Ne demandez pas de conseils sur l\'acquisition ou l\'utilisation d\'armes.',
+    r4h:'Pas de manipulation.', r4b:'N\'utilisez pas Oracle pour planifier une manipulation psychologique ou une coercition.',
+    r5h:'Décisions réelles uniquement.', r5b:'Oracle est conçu pour des situations académiques, professionnelles, personnelles ou commerciales authentiques.',
+    agree:'J\'accepte — Emmène-moi vers Oracle',
+    yourSituation:'Votre situation', theDecision:'La décision', yourOptions:'Vos options',
+    situationPh:'Décrivez le contexte et les antécédents...', decisionPh:'Que décidez-vous exactement ?',
+    optA:'Option A', optB:'Option B', optC:'Option C (facultatif)',
+    analyzeBtn:'Analyser la décision →',
+    emptyMsg:'Entrez votre situation, décision et options — Oracle prédira le meilleur chemin.',
+    ls1:'Analyse de votre situation...', ls2:'Recherche de cas similaires...', ls3:'Notation de chaque option...', ls4:'Génération de votre recommandation...',
+    recommendation:'Recommandation', bestPath:'Meilleur chemin',
+    decisionContext:'Contexte de décision', similarCases:'Cas similaires trouvés',
+    optionAnalysis:'Analyse des options', whyWins:'Pourquoi cette option gagne',
+    intSources:'Sources d\'intelligence', predictedSuccess:'Succès prédit',
+    blocked:'Demande bloquée', blockedMsg:'Cette demande viole la politique d\'utilisation d\'Oracle.',
+    langName:'Français', respondIn:'Réponds entièrement en français.'
+  },
+  ja: {
+    next:'次へ →', back:'← 戻る', signout:'サインアウト', getStarted:'始める →',
+    welcomeTitle:'<em>Oracle</em>へ<br>ようこそ。',
+    welcomeDesc:'Oracleは意思決定インテリジェンスエンジンです。状況、直面している決断、選択肢を説明してください — Oracleが類似ケースを分析し、最も成功確率の高い道を教えます。',
+    step1:'状況、決断、選択肢を平易な言葉で説明する', step2:'Oracleが類似の実際のケースと専門知識を検索', step3:'完全な推論を含むスコア付き推薦を取得',
+    sourcedFrom:'情報源', src1:'学術研究', src2:'ケーススタディ', src3:'専門家分析', src4:'歴史的データ', src5:'業界レポート',
+    rulesTitle:'始める前に。', rulesSub:'Oracleは倫理的な意思決定のためのツールです。読んで同意してください。',
+    r1h:'有害な意図は禁止。', r1b:'人を傷つけたり脅したりする方法を尋ねないでください。',
+    r2h:'違法行為は禁止。', r2b:'強盗、詐欺、ハッキングなど犯罪行為のアドバイスを求めないでください。',
+    r3h:'武器や暴力は禁止。', r3b:'危害を与えるための武器の取得や使用に関する指導を求めないでください。',
+    r4h:'操作は禁止。', r4b:'心理的操作や強制を計画するためにOracleを使用しないでください。',
+    r5h:'実際の決断のみ。', r5b:'Oracleは真の学術、専門、個人、またはビジネス状況向けに構築されています。',
+    agree:'同意する — Oracleへ',
+    yourSituation:'あなたの状況', theDecision:'決断', yourOptions:'選択肢',
+    situationPh:'背景と状況を説明してください...', decisionPh:'具体的に何を決めますか？',
+    optA:'選択肢 A', optB:'選択肢 B', optC:'選択肢 C（任意）',
+    analyzeBtn:'決断を分析する →',
+    emptyMsg:'状況、決断、選択肢を入力してください — Oracleが最善の道を予測します。',
+    ls1:'状況を分析中...', ls2:'類似の実際のケースを検索中...', ls3:'各選択肢をスコアリング中...', ls4:'推薦を生成中...',
+    recommendation:'推薦', bestPath:'最善の道',
+    decisionContext:'決断の背景', similarCases:'類似ケースが見つかりました',
+    optionAnalysis:'選択肢分析', whyWins:'なぜこの選択肢が勝つか',
+    intSources:'情報源', predictedSuccess:'予測成功率',
+    blocked:'リクエストがブロックされました', blockedMsg:'このリクエストはOracleの使用ポリシーに違反しています。',
+    langName:'日本語', respondIn:'すべて日本語で回答してください。'
+  },
+  ko: {
+    next:'다음 →', back:'← 뒤로', signout:'로그아웃', getStarted:'시작하기 →',
+    welcomeTitle:'<em>Oracle</em>에<br>오신 것을 환영합니다.',
+    welcomeDesc:'Oracle은 의사결정 지능 엔진입니다. 상황, 직면한 결정, 옵션을 설명하면 Oracle이 유사한 사례를 분석하고 성공 확률이 가장 높은 경로를 알려드립니다.',
+    step1:'상황, 결정, 옵션을 쉬운 언어로 설명하세요', step2:'Oracle이 유사한 실제 사례와 전문 지식을 검색합니다', step3:'완전한 추론이 포함된 점수 추천을 받으세요',
+    sourcedFrom:'정보 출처', src1:'학술 연구', src2:'사례 연구', src3:'전문가 분석', src4:'역사적 데이터', src5:'산업 보고서',
+    rulesTitle:'시작하기 전에.', rulesSub:'Oracle은 윤리적 의사결정을 위한 도구입니다. 읽고 동의하여 진행하세요.',
+    r1h:'해로운 의도 금지.', r1b:'어떤 사람이나 그룹을 해치거나 위협하는 방법을 묻지 마세요.',
+    r2h:'불법 활동 금지.', r2b:'강도, 사기, 해킹 또는 범죄 행위에 대한 조언을 구하지 마세요.',
+    r3h:'무기 또는 폭력 금지.', r3b:'해를 끼치기 위한 무기 획득이나 사용에 관한 지침을 요청하지 마세요.',
+    r4h:'조작 금지.', r4b:'심리적 조작이나 강압을 계획하는 데 Oracle을 사용하지 마세요.',
+    r5h:'실제 결정만.', r5b:'Oracle은 진정한 학술, 전문, 개인 또는 비즈니스 상황을 위해 만들어졌습니다.',
+    agree:'동의합니다 — Oracle로 이동',
+    yourSituation:'내 상황', theDecision:'결정', yourOptions:'내 옵션',
+    situationPh:'배경과 상황을 설명하세요...', decisionPh:'정확히 무엇을 결정하고 있나요?',
+    optA:'옵션 A', optB:'옵션 B', optC:'옵션 C (선택 사항)',
+    analyzeBtn:'결정 분석하기 →',
+    emptyMsg:'상황, 결정, 옵션을 입력하세요 — Oracle이 최선의 경로를 예측합니다.',
+    ls1:'상황 분석 중...', ls2:'유사한 실제 사례 검색 중...', ls3:'각 옵션 채점 중...', ls4:'추천 생성 중...',
+    recommendation:'추천', bestPath:'최선의 경로',
+    decisionContext:'결정 맥락', similarCases:'유사한 사례 발견',
+    optionAnalysis:'옵션 분석', whyWins:'이 옵션이 승리하는 이유',
+    intSources:'정보 출처', predictedSuccess:'예측 성공률',
+    blocked:'요청이 차단되었습니다', blockedMsg:'이 요청은 Oracle 사용 정책을 위반합니다.',
+    langName:'한국어', respondIn:'모든 내용을 한국어로 답하세요.'
+  },
+  ar: {
+    next:'التالي →', back:'→ رجوع', signout:'تسجيل خروج', getStarted:'ابدأ →',
+    welcomeTitle:'مرحباً بك في<br><em>Oracle.</em>',
+    welcomeDesc:'Oracle هو محرك ذكاء اتخاذ القرار. صف موقفك والقرار الذي تواجهه وخياراتك — سيحلل Oracle حالات مماثلة ويخبرك بالمسار الذي يمنحك أعلى احتمال للنجاح.',
+    step1:'صف موقفك وقرارك وخياراتك بلغة بسيطة', step2:'يبحث Oracle في حالات مماثلة من الواقع', step3:'احصل على توصية مسجلة مع تفسير كامل',
+    sourcedFrom:'مصادر المعلومات', src1:'بحث أكاديمي', src2:'دراسات حالة', src3:'تحليل خبراء', src4:'بيانات تاريخية', src5:'تقارير الصناعة',
+    rulesTitle:'قبل أن نبدأ.', rulesSub:'Oracle أداة لاتخاذ القرار الأخلاقي. اقرأ ووافق للمتابعة.',
+    r1h:'لا نية ضارة.', r1b:'لا تسأل عن كيفية إيذاء أي شخص أو مجموعة.',
+    r2h:'لا أنشطة غير قانونية.', r2b:'لا تطلب نصائح حول السرقة أو الاحتيال أو القرصنة.',
+    r3h:'لا أسلحة أو عنف.', r3b:'لا تطلب إرشادات حول استخدام الأسلحة للإيذاء.',
+    r4h:'لا تلاعب.', r4b:'لا تستخدم Oracle لتخطيط التلاعب النفسي أو الإكراه.',
+    r5h:'قرارات حقيقية فقط.', r5b:'Oracle مبني للمواقف الأكاديمية والمهنية والشخصية والتجارية الحقيقية.',
+    agree:'أوافق — خذني إلى Oracle',
+    yourSituation:'موقفك', theDecision:'القرار', yourOptions:'خياراتك',
+    situationPh:'صف السياق والخلفية...', decisionPh:'ما الذي تقرره بالضبط؟',
+    optA:'الخيار أ', optB:'الخيار ب', optC:'الخيار ج (اختياري)',
+    analyzeBtn:'تحليل القرار →',
+    emptyMsg:'أدخل موقفك وقرارك وخياراتك — سيتنبأ Oracle بأفضل مسار.',
+    ls1:'تحليل موقفك...', ls2:'البحث في حالات مماثلة...', ls3:'تسجيل كل خيار...', ls4:'إنشاء توصيتك...',
+    recommendation:'التوصية', bestPath:'أفضل مسار',
+    decisionContext:'سياق القرار', similarCases:'حالات مماثلة وجدت',
+    optionAnalysis:'تحليل الخيارات', whyWins:'لماذا يفوز هذا الخيار',
+    intSources:'مصادر المعلومات', predictedSuccess:'احتمال النجاح',
+    blocked:'تم حظر الطلب', blockedMsg:'هذا الطلب ينتهك سياسة استخدام Oracle.',
+    langName:'العربية', respondIn:'أجب بالكامل باللغة العربية.'
+  },
+  pt: {
+    next:'Próximo →', back:'← Voltar', signout:'Sair', getStarted:'Começar →',
+    welcomeTitle:'Bem-vindo ao<br><em>Oracle.</em>',
+    welcomeDesc:'Oracle é um motor de inteligência de decisão. Descreva sua situação, a decisão que você enfrenta e suas opções — Oracle analisa casos semelhantes e diz qual caminho tem maior probabilidade de sucesso.',
+    step1:'Descreva sua situação, decisão e opções em linguagem simples', step2:'Oracle busca casos reais semelhantes e conhecimento especializado', step3:'Obtenha uma recomendação pontuada com raciocínio completo',
+    sourcedFrom:'Inteligência obtida de', src1:'Pesquisa Acadêmica', src2:'Estudos de Caso', src3:'Análise Especializada', src4:'Dados Históricos', src5:'Relatórios do Setor',
+    rulesTitle:'Antes de começar.', rulesSub:'Oracle é uma ferramenta para tomada de decisão ética. Leia e concorde para continuar.',
+    r1h:'Sem intenção prejudicial.', r1b:'Não pergunte como prejudicar, ameaçar ou machucar qualquer pessoa.',
+    r2h:'Sem atividades ilegais.', r2b:'Não peça conselhos sobre roubo, fraude, hacking ou qualquer ato criminoso.',
+    r3h:'Sem armas ou violência.', r3b:'Não solicite orientação sobre aquisição ou uso de armas para causar dano.',
+    r4h:'Sem manipulação.', r4b:'Não use Oracle para planejar manipulação psicológica ou coerção.',
+    r5h:'Apenas decisões reais.', r5b:'Oracle é construído para situações acadêmicas, profissionais, pessoais ou comerciais genuínas.',
+    agree:'Concordo — Leve-me ao Oracle',
+    yourSituation:'Sua situação', theDecision:'A decisão', yourOptions:'Suas opções',
+    situationPh:'Descreva o contexto e o histórico...', decisionPh:'O que exatamente você está decidindo?',
+    optA:'Opção A', optB:'Opção B', optC:'Opção C (opcional)',
+    analyzeBtn:'Analisar Decisão →',
+    emptyMsg:'Insira sua situação, decisão e opções — Oracle preverá o melhor caminho.',
+    ls1:'Analisando sua situação...', ls2:'Buscando casos reais semelhantes...', ls3:'Pontuando cada opção...', ls4:'Gerando sua recomendação...',
+    recommendation:'Recomendação', bestPath:'Melhor Caminho',
+    decisionContext:'Contexto da Decisão', similarCases:'Casos Semelhantes Encontrados',
+    optionAnalysis:'Análise de Opções', whyWins:'Por que esta opção vence',
+    intSources:'Fontes de Inteligência', predictedSuccess:'Sucesso previsto',
+    blocked:'Solicitação Bloqueada', blockedMsg:'Esta solicitação viola a política de uso do Oracle.',
+    langName:'Português', respondIn:'Responda completamente em português.'
+  },
+  de: {
+    next:'Weiter →', back:'← Zurück', signout:'Abmelden', getStarted:'Loslegen →',
+    welcomeTitle:'Willkommen bei<br><em>Oracle.</em>',
+    welcomeDesc:'Oracle ist eine Entscheidungsintelligenz-Engine. Beschreiben Sie Ihre Situation, die Entscheidung, vor der Sie stehen, und Ihre Optionen — Oracle analysiert ähnliche Fälle und sagt Ihnen, welcher Weg die höchste Erfolgswahrscheinlichkeit hat.',
+    step1:'Beschreiben Sie Ihre Situation, Entscheidung und Optionen in einfacher Sprache', step2:'Oracle sucht ähnliche reale Fälle und Expertenwissen', step3:'Erhalten Sie eine bewertete Empfehlung mit vollständiger Begründung',
+    sourcedFrom:'Intelligenz gewonnen aus', src1:'Akademische Forschung', src2:'Fallstudien', src3:'Expertenanalyse', src4:'Historische Daten', src5:'Branchenberichte',
+    rulesTitle:'Bevor wir beginnen.', rulesSub:'Oracle ist ein Werkzeug für ethische Entscheidungsfindung. Lesen und stimmen Sie zu.',
+    r1h:'Keine schädlichen Absichten.', r1b:'Fragen Sie nicht, wie Sie eine Person oder Gruppe verletzen oder bedrohen können.',
+    r2h:'Keine illegalen Aktivitäten.', r2b:'Bitten Sie nicht um Rat zu Raub, Betrug, Hacking oder kriminellen Handlungen.',
+    r3h:'Keine Waffen oder Gewalt.', r3b:'Fordern Sie keine Anleitung zur Beschaffung oder Verwendung von Waffen an.',
+    r4h:'Keine Manipulation.', r4b:'Verwenden Sie Oracle nicht zur Planung psychologischer Manipulation oder Nötigung.',
+    r5h:'Nur echte Entscheidungen.', r5b:'Oracle ist für echte akademische, berufliche, persönliche oder geschäftliche Situationen konzipiert.',
+    agree:'Ich stimme zu — Bring mich zu Oracle',
+    yourSituation:'Ihre Situation', theDecision:'Die Entscheidung', yourOptions:'Ihre Optionen',
+    situationPh:'Beschreiben Sie den Kontext und Hintergrund...', decisionPh:'Was genau entscheiden Sie?',
+    optA:'Option A', optB:'Option B', optC:'Option C (optional)',
+    analyzeBtn:'Entscheidung analysieren →',
+    emptyMsg:'Geben Sie Ihre Situation, Entscheidung und Optionen ein — Oracle wird den besten Weg vorhersagen.',
+    ls1:'Ihre Situation analysieren...', ls2:'Ähnliche reale Fälle suchen...', ls3:'Jede Option bewerten...', ls4:'Ihre Empfehlung generieren...',
+    recommendation:'Empfehlung', bestPath:'Bester Weg',
+    decisionContext:'Entscheidungskontext', similarCases:'Ähnliche Fälle gefunden',
+    optionAnalysis:'Optionsanalyse', whyWins:'Warum diese Option gewinnt',
+    intSources:'Intelligenzquellen', predictedSuccess:'Vorhergesagter Erfolg',
+    blocked:'Anfrage blockiert', blockedMsg:'Diese Anfrage verstößt gegen die Nutzungsrichtlinien von Oracle.',
+    langName:'Deutsch', respondIn:'Antworte vollständig auf Deutsch.'
+  }
+};
+
+let currentLang = 'en';
+
+function t(key) { return (T[currentLang] && T[currentLang][key]) || T.en[key] || key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    el.innerHTML = t(key);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    el.placeholder = t(key);
+  });
+  document.querySelectorAll('.lang-select').forEach(sel => sel.value = currentLang);
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  applyLang();
+}
+
+function setMode(mode, btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.glass').forEach(p => {
+    if (mode === 'tinted') p.classList.add('tinted');
+    else p.classList.remove('tinted');
+  });
+}
+
+function goTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function handleLogin() { goTo('welcome'); }
+
+function isFlagged(text) {
+  const lower = text.toLowerCase();
+  return BLOCKED.some(w => lower.includes(w));
+}
+
+async function analyze() {
+  const situation = document.getElementById('situation').value.trim();
+  const decision = document.getElementById('decision').value.trim();
+  const opt1 = document.getElementById('opt1').value.trim();
+  const opt2 = document.getElementById('opt2').value.trim();
+  const opt3 = document.getElementById('opt3').value.trim();
+
+  if (!situation || !decision || !opt1 || !opt2) {
+    alert(currentLang === 'en' ? 'Please fill in situation, decision, and at least two options.' : t('emptyMsg'));
+    return;
+  }
+  if (isFlagged(situation + decision + opt1 + opt2 + opt3)) {
+    document.getElementById('emptyState').style.display = 'none';
+    const rw = document.getElementById('resultWrap');
+    rw.style.display = 'flex';
+    rw.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:13px;color:var(--danger);margin-bottom:8px;font-weight:500;">${t('blocked')}</div><div style="font-size:13px;color:var(--text-muted);max-width:320px;margin:0 auto;line-height:1.6;">${t('blockedMsg')}</div></div>`;
+    return;
+  }
+
+  const options = [{ letter: 'A', text: opt1 }, { letter: 'B', text: opt2 }];
+  if (opt3) options.push({ letter: 'C', text: opt3 });
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultWrap').style.display = 'none';
+  document.getElementById('resultWrap').innerHTML = '';
+
+  const ld = document.getElementById('loadingState');
+  ld.style.display = 'flex';
+  ['ls1','ls2','ls3','ls4'].forEach(s => document.getElementById(s).classList.remove('on'));
+  let si = 0;
+  const iv = setInterval(() => { if (si < 4) { document.getElementById('ls'+(si+1)).classList.add('on'); si++; } }, 800);
+
+  const optionsText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
+  const langInstruction = t('respondIn');
+
+  const prompt = `You are Oracle, a world-class decision intelligence system. ${langInstruction}
+
+Analyze this decision and respond ONLY in valid JSON — no markdown, no backticks, no extra text.
+
+Situation: ${situation}
+Decision: ${decision}
+Options:
+${optionsText}
+
+Instructions:
+- Analyze each option based on real-world outcomes from similar decisions
+- Assign each option a realistic success probability score (0-100)
+- ALL text fields in your JSON response must be in the same language as this instruction: ${langInstruction}
+- Include ALL options in the options array
+
+Respond with exactly this JSON:
+{
+  "summary": "2-3 sentence overview of the decision landscape",
+  "similar_cases": "Describe 2-3 real-world analogous situations and outcomes",
+  "options": [
+    {
+      "letter": "A",
+      "name": "${opt1}",
+      "score": 70,
+      "analysis": "2-3 sentence analysis",
+      "pros": "Main advantage",
+      "cons": "Main risk"
+    }
+  ],
+  "recommendation": "exact option name",
+  "recommendation_letter": "A",
+  "reasoning": "2-3 sentences why this option wins",
+  "sources": ["Source type 1", "Source type 2", "Source type 3"]
+}`;
+
+  try {
+    const res = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1400,
+        temperature: 0.35,
+        messages: [
+          { role: 'system', content: `You are Oracle. Always respond with valid JSON only. No markdown, no backticks. ${langInstruction}` },
+          { role: 'user', content: prompt }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    clearInterval(iv);
+    ld.style.display = 'none';
+
+    const raw = data.choices?.[0]?.message?.content || '';
+    let parsed;
+    try { const m = raw.match(/\{[\s\S]*\}/); parsed = JSON.parse(m ? m[0] : raw); } catch(e) { parsed = null; }
+
+    const rw = document.getElementById('resultWrap');
+    rw.style.display = 'flex';
+    rw.classList.add('fadein');
+
+    if (parsed) {
+      const cards = (parsed.options || []).map(opt => {
+        const isBest = opt.letter === parsed.recommendation_letter;
+        return `<div class="opt-card ${isBest ? 'best' : ''}">
+          <div class="opt-card-title">
+            <span style="width:20px;height:20px;border-radius:6px;background:${isBest ? 'rgba(74,127,255,0.2)' : 'rgba(255,255,255,0.06)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:${isBest ? '#7ab0ff' : 'var(--text-muted)'};">${opt.letter}</span>
+            ${opt.name}
+          </div>
+          <div class="opt-card-body">${opt.analysis || ''}</div>
+          <div class="pros-cons">
+            <div class="pro">+ ${opt.pros || ''}</div>
+            <div class="con">− ${opt.cons || ''}</div>
+          </div>
+          <div class="score-wrap">
+            <div class="score-labels"><span>${t('predictedSuccess')}</span><span>${opt.score || 0}%</span></div>
+            <div class="score-track"><div class="score-fill" style="width:${opt.score || 0}%"></div></div>
+          </div>
+        </div>`;
+      }).join('');
+
+      const chips = (parsed.sources || []).map(s => `<span class="chip">${s}</span>`).join('');
+
+      rw.innerHTML = `
+        <div class="result-header">
+          <div style="flex:1;">
+            <div class="rec-label">${t('recommendation')}</div>
+            <div class="rec-name">${parsed.recommendation || ''}</div>
+          </div>
+          <div class="best-badge">${t('bestPath')}</div>
+        </div>
+        <div><div class="section-title">${t('decisionContext')}</div><div class="body-text">${parsed.summary || ''}</div></div>
+        <div><div class="section-title">${t('similarCases')}</div><div class="body-text">${parsed.similar_cases || ''}</div></div>
+        <div><div class="section-title">${t('optionAnalysis')}</div>${cards}</div>
+        <div><div class="section-title">${t('whyWins')}</div><div class="body-text">${parsed.reasoning || ''}</div></div>
+        <div><div class="section-title">${t('intSources')}</div><div>${chips}</div></div>`;
+    } else {
+      rw.innerHTML = `<div class="section-title">Oracle</div><div class="body-text" style="white-space:pre-wrap;">${raw}</div>`;
+    }
+  } catch(err) {
+    clearInterval(iv);
+    document.getElementById('loadingState').style.display = 'none';
+    const rw = document.getElementById('resultWrap');
+    rw.style.display = 'flex';
+    rw.innerHTML = `<div style="color:var(--danger);font-size:13px;padding:20px;">Error: ${err.message}</div>`;
+  }
+  btn.disabled = false;
+}
+
+applyLang();
+</script>
+</body>
+</html>
