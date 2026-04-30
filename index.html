@@ -1286,11 +1286,11 @@ async function analyze() {
   const situation = document.getElementById('situation').value.trim();
   const decision = document.getElementById('decision').value.trim();
       
-  if (!situation || !decision || !opt1 || !opt2) {
-    alert(currentLang === 'en' ? 'Please fill in situation, decision, and at least two options.' : t('emptyMsg'));
+  if (!situation && !decision && !imageBase64) {
+    alert('Please describe your situation or question.');
     return;
   }
-  if (isFlagged(situation + decision + opt1 + opt2 + opt3)) {
+  if (isFlagged(situation + decision + options.map(o=>o.text).join(''))) {
     document.getElementById('emptyState').style.display = 'none';
     const rw = document.getElementById('resultWrap');
     rw.style.display = 'flex';
@@ -1342,7 +1342,7 @@ Respond with exactly this JSON:
   "options": [
     {
       "letter": "A",
-      "name": "${opt1}",
+      "name": "Option A",
       "score": 70,
       "analysis": "2-3 sentence analysis",
       "pros": "Main advantage",
