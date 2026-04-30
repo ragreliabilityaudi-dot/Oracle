@@ -1405,14 +1405,14 @@ Give a clear, detailed answer. Show your work step by step if it's a math proble
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
         body: JSON.stringify({
-          model: 'llama-3.2-90b-vision-preview',
+          model: 'llama-3.2-11b-vision-preview',
           max_tokens: 1000,
           temperature: 0.2,
           messages: [{
             role: 'user',
             content: [
-              { type: 'image_url', image_url: { url: `data:image/png;base64,${imageBase64}`, detail: 'high' } },
-              { type: 'text', text: visionPrompt }
+              { type: 'text', text: visionPrompt },
+              { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
             ]
           }]
         })
