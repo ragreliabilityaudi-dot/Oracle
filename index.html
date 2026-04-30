@@ -1210,7 +1210,7 @@ function goTo(id) {
 function handleLogin() { goTo('welcome'); }
 
 function isFlagged(text) {
-  const lower = text.toLowerCase();
+  const lower = (text || '').toLowerCase();
   return BLOCKED.some(w => lower.includes(w));
 }
 
@@ -1285,10 +1285,7 @@ function clearImage(event) {
 async function analyze() {
   const situation = document.getElementById('situation').value.trim();
   const decision = document.getElementById('decision').value.trim();
-  const opt1 = document.getElementById('opt1').value.trim();
-  const opt2 = document.getElementById('opt2').value.trim();
-  const opt3 = document.getElementById('opt3').value.trim();
-
+      
   if (!situation || !decision || !opt1 || !opt2) {
     alert(currentLang === 'en' ? 'Please fill in situation, decision, and at least two options.' : t('emptyMsg'));
     return;
@@ -1309,9 +1306,16 @@ async function analyze() {
 
   const ld = document.getElementById('loadingState');
   ld.style.display = 'flex';
-  ['ls1','ls2','ls3','ls4'].forEach(s => document.getElementById(s).classList.remove('on'));
+  const lsEls = ['ls1','ls2','ls3','ls4'];
+  lsEls.forEach(s => { const el = document.getElementById(s); if(el) el.classList.remove('on'); });
   let si = 0;
-  const iv = setInterval(() => { if (si < 4) { document.getElementById('ls'+(si+1)).classList.add('on'); si++; } }, 800);
+  const iv = setInterval(() => { 
+    if (si < 4) { 
+      const el = document.getElementById('ls'+(si+1)); 
+      if(el) el.classList.add('on'); 
+      si++; 
+    } 
+  }, 800);
 
   const optionsText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
   const langInstruction = t('respondIn');
