@@ -207,6 +207,9 @@
   .analyze-btn:hover:not(:disabled) { background:linear-gradient(135deg,rgba(74,127,255,0.28),rgba(74,127,255,0.14)); transform:translateY(-1px); border-color:rgba(74,127,255,0.5); box-shadow:0 8px 24px rgba(74,127,255,0.15); }
   .analyze-btn:disabled { opacity:0.3; cursor:not-allowed; }
   .powered { font-size:10px; color:var(--text-muted); text-align:center; margin-top:12px; letter-spacing:0.04em; }
+  .image-upload-area { border:1px dashed rgba(74,127,255,0.2); border-radius:12px; padding:16px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(74,127,255,0.02); }
+  .image-upload-area:hover { border-color:rgba(74,127,255,0.4); background:rgba(74,127,255,0.05); }
+  .remove-opt { background:rgba(255,74,107,0.15); border:1px solid rgba(255,74,107,0.2); color:#ff8fa3; border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:10px; flex-shrink:0; }
 
   /* OUTPUT */
   .output-panel { flex:1; padding:0; overflow-y:auto; display:flex; flex-direction:column; background:rgba(0,0,0,0.15); }
@@ -620,35 +623,54 @@
   <div class="oracle-body">
     <!-- INPUT PANEL -->
     <div class="input-panel">
-      <div style="margin-bottom:28px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:0.04em;margin-bottom:4px;">Decision Console</div>
-        <div style="font-size:11px;color:var(--text-muted);">Fill in all fields and let Oracle analyze your best path</div>
+      <div style="margin-bottom:20px;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:0.04em;margin-bottom:4px;">Oracle Console</div>
+        <div style="font-size:11px;color:var(--text-muted);">Ask anything — math, decisions, questions, or problems</div>
       </div>
 
       <div class="input-section">
-        <div class="panel-label" data-i18n="yourSituation">Your Situation</div>
-        <textarea class="crystal-input" id="situation" rows="4" data-i18n-ph="situationPh" placeholder="Describe the context and background..."></textarea>
+        <div class="panel-label" data-i18n="yourSituation">Your Situation / Question</div>
+        <textarea class="crystal-input" id="situation" rows="4" placeholder="Describe your situation, ask a question, or paste a problem..."></textarea>
+      </div>
+
+      <!-- IMAGE UPLOAD -->
+      <div class="input-section">
+        <div class="panel-label">Attach Image (optional)</div>
+        <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('imageInput').click()">
+          <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+          <div id="uploadPrompt">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(74,127,255,0.5)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Click to upload image</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.15);margin-top:2px;">Photo of math problem, diagram, or anything visual</div>
+          </div>
+          <div id="imagePreview" style="display:none;position:relative;">
+            <img id="previewImg" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover;">
+            <button onclick="clearImage(event)" style="position:absolute;top:4px;right:4px;background:rgba(255,74,107,0.8);border:none;color:white;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;">✕</button>
+          </div>
+        </div>
       </div>
 
       <div class="input-section">
-        <div class="panel-label" data-i18n="theDecision">The Decision</div>
-        <textarea class="crystal-input" id="decision" rows="3" data-i18n-ph="decisionPh" placeholder="What exactly are you deciding?"></textarea>
+        <div class="panel-label" data-i18n="theDecision">The Question / Decision</div>
+        <textarea class="crystal-input" id="decision" rows="2" placeholder="What do you want Oracle to answer or decide?"></textarea>
       </div>
 
       <div class="input-divider"></div>
 
       <div class="input-section">
-        <div class="panel-label" data-i18n="yourOptions">Your Options</div>
-        <div class="options-stack">
-          <div class="opt-row"><div class="opt-letter">A</div><input type="text" class="crystal-input" id="opt1" style="height:42px;" data-i18n-ph="optA" placeholder="Option A"></div>
-          <div class="opt-row"><div class="opt-letter">B</div><input type="text" class="crystal-input" id="opt2" style="height:42px;" data-i18n-ph="optB" placeholder="Option B"></div>
-          <div class="opt-row"><div class="opt-letter">C</div><input type="text" class="crystal-input" id="opt3" style="height:42px;" data-i18n-ph="optC" placeholder="Option C (optional)"></div>
+        <div class="panel-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Options <span style="opacity:0.5;font-size:9px;">(optional for direct questions)</span></span>
+          <button onclick="addOption()" style="background:rgba(74,127,255,0.1);border:1px solid rgba(74,127,255,0.2);color:#7ab0ff;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">+ Add</button>
+        </div>
+        <div class="options-stack" id="optionsStack">
+          <div class="opt-row" id="optRow0"><div class="opt-letter">A</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option A"><button class="remove-opt" onclick="removeOption(0)" style="display:none;">✕</button></div>
+          <div class="opt-row" id="optRow1"><div class="opt-letter">B</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option B"><button class="remove-opt" onclick="removeOption(1)" style="display:none;">✕</button></div>
         </div>
       </div>
 
       <div style="margin-top:auto;padding-top:16px;">
-        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()" data-i18n="analyzeBtn">Analyze Decision →</button>
-        <div class="powered">Powered by Groq · Llama 3.3 70B</div>
+        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">Ask Oracle →</button>
+        <div class="powered">Powered by Groq · Llama 3.3 70B · Vision</div>
       </div>
     </div>
 
@@ -664,16 +686,16 @@
           </div>
           <div>
             <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;margin-bottom:8px;color:rgba(255,255,255,0.3);">Awaiting input</div>
-            <p data-i18n="emptyMsg">Enter your situation, decision, and options — Oracle will predict the best path forward.</p>
+            <p>Ask a question, upload an image, or describe a decision — Oracle will respond instantly.</p>
           </div>
         </div>
         <div class="loading-state" id="loadingState">
           <div class="loader-ring"></div>
           <div style="display:flex;flex-direction:column;gap:7px;">
-            <div class="loading-step" id="ls1" data-i18n="ls1">Analyzing your situation...</div>
-            <div class="loading-step" id="ls2" data-i18n="ls2">Searching similar real-world cases...</div>
-            <div class="loading-step" id="ls3" data-i18n="ls3">Scoring each option...</div>
-            <div class="loading-step" id="ls4" data-i18n="ls4">Generating your recommendation...</div>
+            <div class="loading-step" id="ls1">Analyzing your input...</div>
+            <div class="loading-step" id="ls2">Processing image & context...</div>
+            <div class="loading-step" id="ls3">Reasoning through the problem...</div>
+            <div class="loading-step" id="ls4">Generating response...</div>
           </div>
         </div>
         <div class="result-wrap" id="resultWrap"></div>
@@ -1028,6 +1050,74 @@ function isFlagged(text) {
   return BLOCKED.some(w => lower.includes(w));
 }
 
+// Dynamic options
+let optionCount = 2;
+const letters = ['A','B','C','D','E','F'];
+
+function addOption() {
+  if (optionCount >= 6) return;
+  const stack = document.getElementById('optionsStack');
+  const div = document.createElement('div');
+  div.className = 'opt-row';
+  div.id = `optRow${optionCount}`;
+  div.innerHTML = `<div class="opt-letter">${letters[optionCount]}</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option ${letters[optionCount]}"><button class="remove-opt" onclick="removeOption(${optionCount})">✕</button>`;
+  stack.appendChild(div);
+  optionCount++;
+  updateRemoveButtons();
+}
+
+function removeOption(idx) {
+  const row = document.getElementById(`optRow${idx}`);
+  if (row) row.remove();
+  rebuildOptions();
+}
+
+function rebuildOptions() {
+  const stack = document.getElementById('optionsStack');
+  const rows = stack.querySelectorAll('.opt-row');
+  optionCount = rows.length;
+  rows.forEach((row, i) => {
+    row.id = `optRow${i}`;
+    row.querySelector('.opt-letter').textContent = letters[i];
+    row.querySelector('.opt-input').placeholder = `Option ${letters[i]}`;
+    const btn = row.querySelector('.remove-opt');
+    if (btn) btn.setAttribute('onclick', `removeOption(${i})`);
+  });
+  updateRemoveButtons();
+}
+
+function updateRemoveButtons() {
+  const rows = document.querySelectorAll('.opt-row');
+  rows.forEach((row, i) => {
+    const btn = row.querySelector('.remove-opt');
+    if (btn) btn.style.display = rows.length > 2 ? 'flex' : 'none';
+  });
+}
+
+// Image handling
+let imageBase64 = null;
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageBase64 = e.target.result.split(',')[1];
+    document.getElementById('uploadPrompt').style.display = 'none';
+    document.getElementById('imagePreview').style.display = 'block';
+    document.getElementById('previewImg').src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage(event) {
+  event.stopPropagation();
+  imageBase64 = null;
+  document.getElementById('imageInput').value = '';
+  document.getElementById('uploadPrompt').style.display = 'block';
+  document.getElementById('imagePreview').style.display = 'none';
+}
+
 async function analyze() {
   const situation = document.getElementById('situation').value.trim();
   const decision = document.getElementById('decision').value.trim();
@@ -1046,9 +1136,6 @@ async function analyze() {
     rw.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:13px;color:var(--danger);margin-bottom:8px;font-weight:500;">${t('blocked')}</div><div style="font-size:13px;color:var(--text-muted);max-width:320px;margin:0 auto;line-height:1.6;">${t('blockedMsg')}</div></div>`;
     return;
   }
-
-  const options = [{ letter: 'A', text: opt1 }, { letter: 'B', text: opt2 }];
-  if (opt3) options.push({ letter: 'C', text: opt3 });
 
   const btn = document.getElementById('analyzeBtn');
   btn.disabled = true;
@@ -1101,16 +1188,24 @@ Respond with exactly this JSON:
 }`;
 
   try {
+    // Build message content - support image if present
+    const userContent = imageBase64
+      ? [
+          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+          { type: 'text', text: prompt }
+        ]
+      : prompt;
+
     const res = await fetch(GROQ_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: imageBase64 ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile',
         max_tokens: 1400,
         temperature: 0.35,
         messages: [
           { role: 'system', content: `You are Oracle. Always respond with valid JSON only. No markdown, no backticks. ${langInstruction}` },
-          { role: 'user', content: prompt }
+          { role: 'user', content: userContent }
         ]
       })
     });
@@ -1128,6 +1223,25 @@ Respond with exactly this JSON:
     rw.classList.add('fadein');
 
     if (parsed) {
+      // DIRECT ANSWER MODE
+      if (parsed.type === 'direct') {
+        const confidenceColor = parsed.confidence === 'high' ? '#00e5a0' : parsed.confidence === 'medium' ? '#f59e0b' : '#ff7a94';
+        const chips = (parsed.sources || []).map(s => `<span class="chip">${s}</span>`).join('');
+        rw.innerHTML = `
+          <div class="result-header">
+            <div style="flex:1;">
+              <div class="rec-label">Oracle Answer</div>
+              <div class="rec-name" style="font-size:16px;line-height:1.4;">${parsed.answer || ''}</div>
+            </div>
+            <div class="best-badge" style="background:rgba(0,229,160,0.1);border-color:rgba(0,229,160,0.2);color:${confidenceColor};">${parsed.confidence || 'high'} confidence</div>
+          </div>
+          <div><div class="section-title">Explanation</div><div class="body-text" style="white-space:pre-wrap;">${parsed.explanation || ''}</div></div>
+          <div><div class="section-title">Sources</div><div>${chips}</div></div>`;
+        btn.disabled = false;
+        return;
+      }
+
+      // DECISION MODE
       const cards = (parsed.options || []).map(opt => {
         const isBest = opt.letter === parsed.recommendation_letter;
         return `<div class="opt-card ${isBest ? 'best' : ''}">
