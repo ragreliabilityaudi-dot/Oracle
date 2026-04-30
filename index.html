@@ -1283,18 +1283,30 @@ function clearImage(event) {
 }
 
 async function analyze() {
-  const situation = document.getElementById('situation').value.trim();
-  const decision = document.getElementById('decision').value.trim();
-      
+  const situation = (document.getElementById('situation').value || '').trim();
+  const decision = (document.getElementById('decision').value || '').trim();
+
   if (!situation && !decision && !imageBase64) {
     alert('Please describe your situation or question.');
     return;
   }
-  if (isFlagged(situation + decision + options.map(o=>o.text).join(''))) {
+
+  // Collect options
+  const optInputs = document.querySelectorAll('.opt-input');
+  const options = [];
+  optInputs.forEach((inp, idx) => {
+    if (inp && inp.value && inp.value.trim()) {
+      options.push({ letter: letters[idx] || String.fromCharCode(65+idx), text: inp.value.trim() });
+    }
+  });
+
+  // Block check
+  const allText = (situation + ' ' + decision + ' ' + options.map(o=>o.text).join(' ')).toLowerCase();
+  if (BLOCKED.some(w => allText.includes(w))) {
     document.getElementById('emptyState').style.display = 'none';
     const rw = document.getElementById('resultWrap');
     rw.style.display = 'flex';
-    rw.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:13px;color:var(--danger);margin-bottom:8px;font-weight:500;">${t('blocked')}</div><div style="font-size:13px;color:var(--text-muted);max-width:320px;margin:0 auto;line-height:1.6;">${t('blockedMsg')}</div></div>`;
+    rw.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:13px;color:var(--danger);margin-bottom:8px;font-weight:500;">Request Blocked</div><div style="font-size:13px;color:var(--text-muted);max-width:320px;margin:0 auto;line-height:1.6;">This request violates Oracle's usage policy.</div></div>`;
     return;
   }
 
@@ -1306,62 +1318,79 @@ async function analyze() {
 
   const ld = document.getElementById('loadingState');
   ld.style.display = 'flex';
-  const lsEls = ['ls1','ls2','ls3','ls4'];
-  lsEls.forEach(s => { const el = document.getElementById(s); if(el) el.classList.remove('on'); });
+  ['ls1','ls2','ls3','ls4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('on');
+  });
   let si = 0;
-  const iv = setInterval(() => { 
-    if (si < 4) { 
-      const el = document.getElementById('ls'+(si+1)); 
-      if(el) el.classList.add('on'); 
-      si++; 
-    } 
+  const iv = setInterval(() => {
+    if (si < 4) {
+      const el = document.getElementById('ls'+(si+1));
+      if (el) el.classList.add('on');
+      si++;
+    }
   }, 800);
 
-  const optionsText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
   const langInstruction = t('respondIn');
+  const hasOptions = options.length >= 2;
 
-  const prompt = `You are Oracle, a world-class decision intelligence system. ${langInstruction}
-
-Analyze this decision and respond ONLY in valid JSON — no markdown, no backticks, no extra text.
+  let prompt;
+  if (hasOptions) {
+    const optText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
+    prompt = `You are Oracle. ${langInstruction}
+Analyze this decision. Respond ONLY in valid JSON, no markdown, no backticks.
 
 Situation: ${situation}
 Decision: ${decision}
 Options:
-${optionsText}
+${optText}
 
-Instructions:
-- Analyze each option based on real-world outcomes from similar decisions
-- Assign each option a realistic success probability score (0-100)
-- ALL text fields in your JSON response must be in the same language as this instruction: ${langInstruction}
-- Include ALL options in the options array
+Rules:
+- Score each option 0-100 based on real-world outcomes
+- If none of the options are good answers, set "no_good_answer" to true and explain why
+- ALL response text must be in the language specified: ${langInstruction}
 
-Respond with exactly this JSON:
+JSON format:
 {
-  "summary": "2-3 sentence overview of the decision landscape",
-  "similar_cases": "Describe 2-3 real-world analogous situations and outcomes",
-  "options": [
-    {
-      "letter": "A",
-      "name": "Option A",
-      "score": 70,
-      "analysis": "2-3 sentence analysis",
-      "pros": "Main advantage",
-      "cons": "Main risk"
-    }
-  ],
-  "recommendation": "exact option name",
-  "recommendation_letter": "A",
-  "reasoning": "2-3 sentences why this option wins",
-  "sources": ["Source type 1", "Source type 2", "Source type 3"]
+  "type": "decision",
+  "no_good_answer": false,
+  "no_good_answer_reason": "",
+  "summary": "2-3 sentence overview",
+  "similar_cases": "2-3 real analogous cases and outcomes",
+  "options": [${options.map(o => `{"letter":"${o.letter}","name":"${o.text}","score":70,"analysis":"analysis","pros":"advantage","cons":"risk"}`).join(',')}],
+  "recommendation": "best option name or none",
+  "recommendation_letter": "${options[0]?.letter || 'A'}",
+  "reasoning": "why this wins or why none work",
+  "sources": ["source1","source2"]
 }`;
+  } else {
+    prompt = `You are Oracle. ${langInstruction}
+Answer this question directly. Respond ONLY in valid JSON, no markdown, no backticks.
+${imageBase64 ? 'An image has been attached — analyze it carefully as part of the answer.' : ''}
+
+Question: ${situation}
+${decision ? 'Specifically: ' + decision : ''}
+
+Rules:
+- Give a clear direct answer
+- If the question has no correct answer or is unanswerable, set "no_answer" to true
+- ALL response text must be in the language specified: ${langInstruction}
+
+JSON:
+{
+  "type": "direct",
+  "no_answer": false,
+  "no_answer_reason": "",
+  "answer": "clear direct answer",
+  "explanation": "step by step reasoning",
+  "confidence": "high",
+  "sources": ["source type"]
+}`;
+  }
 
   try {
-    // Build message content - support image if present
     const userContent = imageBase64
-      ? [
-          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
-          { type: 'text', text: prompt }
-        ]
+      ? [{ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }, { type: 'text', text: prompt }]
       : prompt;
 
     const res = await fetch(GROQ_URL, {
@@ -1370,9 +1399,9 @@ Respond with exactly this JSON:
       body: JSON.stringify({
         model: imageBase64 ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile',
         max_tokens: 1400,
-        temperature: 0.35,
+        temperature: 0.3,
         messages: [
-          { role: 'system', content: `You are Oracle. Always respond with valid JSON only. No markdown, no backticks. ${langInstruction}` },
+          { role: 'system', content: `You are Oracle. Respond with valid JSON only. No markdown. ${langInstruction}` },
           { role: 'user', content: userContent }
         ]
       })
@@ -1390,62 +1419,64 @@ Respond with exactly this JSON:
     rw.style.display = 'flex';
     rw.classList.add('fadein');
 
-    if (parsed) {
-      // DIRECT ANSWER MODE
-      if (parsed.type === 'direct') {
-        const confidenceColor = parsed.confidence === 'high' ? '#00e5a0' : parsed.confidence === 'medium' ? '#f59e0b' : '#ff7a94';
-        const chips = (parsed.sources || []).map(s => `<span class="chip">${s}</span>`).join('');
+    if (!parsed) {
+      rw.innerHTML = `<div class="section-title">Oracle</div><div class="body-text" style="white-space:pre-wrap;">${raw}</div>`;
+    } else if (parsed.type === 'direct') {
+      if (parsed.no_answer) {
         rw.innerHTML = `
           <div class="result-header">
-            <div style="flex:1;">
-              <div class="rec-label">Oracle Answer</div>
-              <div class="rec-name" style="font-size:16px;line-height:1.4;">${parsed.answer || ''}</div>
-            </div>
-            <div class="best-badge" style="background:rgba(0,229,160,0.1);border-color:rgba(0,229,160,0.2);color:${confidenceColor};">${parsed.confidence || 'high'} confidence</div>
+            <div style="flex:1;"><div class="rec-label">Oracle</div><div class="rec-name">No definitive answer found</div></div>
+            <div class="best-badge" style="background:rgba(255,74,107,0.1);border-color:rgba(255,74,107,0.2);color:#ff8fa3;">No Answer</div>
           </div>
-          <div><div class="section-title">Explanation</div><div class="body-text" style="white-space:pre-wrap;">${parsed.explanation || ''}</div></div>
+          <div><div class="section-title">Why</div><div class="body-text">${parsed.no_answer_reason || 'This question does not have a clear answer.'}</div></div>`;
+      } else {
+        const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
+        const confColor = parsed.confidence==='high'?'#00e5a0':parsed.confidence==='medium'?'#f59e0b':'#ff7a94';
+        rw.innerHTML = `
+          <div class="result-header">
+            <div style="flex:1;"><div class="rec-label">Oracle Answer</div><div class="rec-name" style="font-size:16px;line-height:1.4;">${parsed.answer||''}</div></div>
+            <div class="best-badge" style="color:${confColor};">${parsed.confidence||'high'} confidence</div>
+          </div>
+          <div><div class="section-title">Explanation</div><div class="body-text" style="white-space:pre-wrap;">${parsed.explanation||''}</div></div>
           <div><div class="section-title">Sources</div><div>${chips}</div></div>`;
-        btn.disabled = false;
-        return;
       }
-
-      // DECISION MODE
-      const cards = (parsed.options || []).map(opt => {
-        const isBest = opt.letter === parsed.recommendation_letter;
-        return `<div class="opt-card ${isBest ? 'best' : ''}">
-          <div class="opt-card-title">
-            <span style="width:20px;height:20px;border-radius:6px;background:${isBest ? 'rgba(74,127,255,0.2)' : 'rgba(255,255,255,0.06)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:${isBest ? '#7ab0ff' : 'var(--text-muted)'};">${opt.letter}</span>
-            ${opt.name}
-          </div>
-          <div class="opt-card-body">${opt.analysis || ''}</div>
-          <div class="pros-cons">
-            <div class="pro">+ ${opt.pros || ''}</div>
-            <div class="con">− ${opt.cons || ''}</div>
-          </div>
-          <div class="score-wrap">
-            <div class="score-labels"><span>${t('predictedSuccess')}</span><span>${opt.score || 0}%</span></div>
-            <div class="score-track"><div class="score-fill" style="width:${opt.score || 0}%"></div></div>
-          </div>
-        </div>`;
-      }).join('');
-
-      const chips = (parsed.sources || []).map(s => `<span class="chip">${s}</span>`).join('');
-
-      rw.innerHTML = `
-        <div class="result-header">
-          <div style="flex:1;">
-            <div class="rec-label">${t('recommendation')}</div>
-            <div class="rec-name">${parsed.recommendation || ''}</div>
-          </div>
-          <div class="best-badge">${t('bestPath')}</div>
-        </div>
-        <div><div class="section-title">${t('decisionContext')}</div><div class="body-text">${parsed.summary || ''}</div></div>
-        <div><div class="section-title">${t('similarCases')}</div><div class="body-text">${parsed.similar_cases || ''}</div></div>
-        <div><div class="section-title">${t('optionAnalysis')}</div>${cards}</div>
-        <div><div class="section-title">${t('whyWins')}</div><div class="body-text">${parsed.reasoning || ''}</div></div>
-        <div><div class="section-title">${t('intSources')}</div><div>${chips}</div></div>`;
     } else {
-      rw.innerHTML = `<div class="section-title">Oracle</div><div class="body-text" style="white-space:pre-wrap;">${raw}</div>`;
+      if (parsed.no_good_answer) {
+        rw.innerHTML = `
+          <div class="result-header">
+            <div style="flex:1;"><div class="rec-label">Oracle Analysis</div><div class="rec-name">None of these options are recommended</div></div>
+            <div class="best-badge" style="background:rgba(255,74,107,0.1);border-color:rgba(255,74,107,0.2);color:#ff8fa3;">No Good Option</div>
+          </div>
+          <div><div class="section-title">Why</div><div class="body-text">${parsed.no_good_answer_reason||''}</div></div>
+          <div><div class="section-title">Suggestion</div><div class="body-text">${parsed.reasoning||''}</div></div>`;
+      } else {
+        const cards = (parsed.options||[]).map(opt => {
+          const isBest = opt.letter === parsed.recommendation_letter;
+          return `<div class="opt-card ${isBest?'best':''}">
+            <div class="opt-card-title">
+              <span style="width:20px;height:20px;border-radius:6px;background:${isBest?'rgba(74,127,255,0.2)':'rgba(255,255,255,0.06)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:${isBest?'#7ab0ff':'var(--text-muted)'};">${opt.letter}</span>
+              ${opt.name}
+            </div>
+            <div class="opt-card-body">${opt.analysis||''}</div>
+            <div class="pros-cons"><div class="pro">+ ${opt.pros||''}</div><div class="con">− ${opt.cons||''}</div></div>
+            <div class="score-wrap">
+              <div class="score-labels"><span>${t('predictedSuccess')}</span><span>${opt.score||0}%</span></div>
+              <div class="score-track"><div class="score-fill" style="width:${opt.score||0}%"></div></div>
+            </div>
+          </div>`;
+        }).join('');
+        const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
+        rw.innerHTML = `
+          <div class="result-header">
+            <div style="flex:1;"><div class="rec-label">${t('recommendation')}</div><div class="rec-name">${parsed.recommendation||''}</div></div>
+            <div class="best-badge">${t('bestPath')}</div>
+          </div>
+          <div><div class="section-title">${t('decisionContext')}</div><div class="body-text">${parsed.summary||''}</div></div>
+          <div><div class="section-title">${t('similarCases')}</div><div class="body-text">${parsed.similar_cases||''}</div></div>
+          <div><div class="section-title">${t('optionAnalysis')}</div>${cards}</div>
+          <div><div class="section-title">${t('whyWins')}</div><div class="body-text">${parsed.reasoning||''}</div></div>
+          <div><div class="section-title">${t('intSources')}</div><div>${chips}</div></div>`;
+      }
     }
   } catch(err) {
     clearInterval(iv);
