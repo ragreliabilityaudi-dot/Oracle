@@ -1412,15 +1412,22 @@ JSON:
     ld.style.display = 'none';
 
     const raw = data.choices?.[0]?.message?.content || '';
-    let parsed;
-    try { const m = raw.match(/\{[\s\S]*\}/); parsed = JSON.parse(m ? m[0] : raw); } catch(e) { parsed = null; }
+    let parsed = null;
+    try { 
+      const m = raw.match(/\{[\s\S]*\}/); 
+      if (m) parsed = JSON.parse(m[0]); 
+    } catch(e) { 
+      console.error('Parse error:', e, 'Raw:', raw);
+      parsed = null; 
+    }
 
     const rw = document.getElementById('resultWrap');
     rw.style.display = 'flex';
     rw.classList.add('fadein');
 
     if (!parsed) {
-      rw.innerHTML = `<div class="section-title">Oracle</div><div class="body-text" style="white-space:pre-wrap;">${raw}</div>`;
+      // Try to extract useful text even if JSON failed
+      rw.innerHTML = `<div class="result-header"><div style="flex:1;"><div class="rec-label">Oracle</div><div class="rec-name">Response</div></div></div><div><div class="section-title">Answer</div><div class="body-text" style="white-space:pre-wrap;line-height:1.8;">${raw.replace(/[{}"]/g,'').replace(/,\s*$/gm,'').trim()}</div></div>`;
     } else if (parsed.type === 'direct') {
       if (parsed.no_answer) {
         rw.innerHTML = `
@@ -1441,14 +1448,17 @@ JSON:
           <div><div class="section-title">Sources</div><div>${chips}</div></div>`;
       }
     } else {
-      if (parsed.no_good_answer) {
+      if (parsed.no_good_answer === true) {
         rw.innerHTML = `
           <div class="result-header">
-            <div style="flex:1;"><div class="rec-label">Oracle Analysis</div><div class="rec-name">None of these options are recommended</div></div>
+            <div style="flex:1;">
+              <div class="rec-label">Oracle Analysis</div>
+              <div class="rec-name" style="color:#ff8fa3;">None of these options are correct</div>
+            </div>
             <div class="best-badge" style="background:rgba(255,74,107,0.1);border-color:rgba(255,74,107,0.2);color:#ff8fa3;">No Good Option</div>
           </div>
           <div><div class="section-title">Why</div><div class="body-text">${parsed.no_good_answer_reason||''}</div></div>
-          <div><div class="section-title">Suggestion</div><div class="body-text">${parsed.reasoning||''}</div></div>`;
+          <div><div class="section-title">Correct Answer / Suggestion</div><div class="body-text">${parsed.reasoning||''}</div></div>`;
       } else {
         const cards = (parsed.options||[]).map(opt => {
           const isBest = opt.letter === parsed.recommendation_letter;
