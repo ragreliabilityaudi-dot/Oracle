@@ -1426,8 +1426,7 @@ JSON:
     rw.classList.add('fadein');
 
     if (!parsed) {
-      // Try to extract useful text even if JSON failed
-      rw.innerHTML = `<div class="result-header"><div style="flex:1;"><div class="rec-label">Oracle</div><div class="rec-name">Response</div></div></div><div><div class="section-title">Answer</div><div class="body-text" style="white-space:pre-wrap;line-height:1.8;">${raw.replace(/[{}"]/g,'').replace(/,\s*$/gm,'').trim()}</div></div>`;
+      rw.innerHTML = `<div class="result-header"><div style="flex:1;"><div class="rec-label">Oracle</div><div class="rec-name">Answer</div></div></div><div><div class="body-text" style="white-space:pre-wrap;line-height:1.8;">${raw}</div></div>`;
     } else if (parsed.type === 'direct') {
       if (parsed.no_answer) {
         rw.innerHTML = `
@@ -1439,13 +1438,18 @@ JSON:
       } else {
         const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
         const confColor = parsed.confidence==='high'?'#00e5a0':parsed.confidence==='medium'?'#f59e0b':'#ff7a94';
+        const answerText = parsed.answer || parsed.explanation || raw;
+        const explanationText = parsed.explanation || '';
         rw.innerHTML = `
           <div class="result-header">
-            <div style="flex:1;"><div class="rec-label">Oracle Answer</div><div class="rec-name" style="font-size:16px;line-height:1.4;">${parsed.answer||''}</div></div>
+            <div style="flex:1;">
+              <div class="rec-label">Oracle Answer</div>
+              <div class="rec-name" style="font-size:18px;line-height:1.5;color:#00e5a0;">${answerText}</div>
+            </div>
             <div class="best-badge" style="color:${confColor};">${parsed.confidence||'high'} confidence</div>
           </div>
-          <div><div class="section-title">Explanation</div><div class="body-text" style="white-space:pre-wrap;">${parsed.explanation||''}</div></div>
-          <div><div class="section-title">Sources</div><div>${chips}</div></div>`;
+          ${explanationText ? `<div><div class="section-title">Step by Step</div><div class="body-text" style="white-space:pre-wrap;line-height:1.8;">${explanationText}</div></div>` : ''}
+          ${chips ? `<div><div class="section-title">Sources</div><div>${chips}</div></div>` : ''}`;
       }
     } else {
       if (parsed.no_good_answer === true) {
