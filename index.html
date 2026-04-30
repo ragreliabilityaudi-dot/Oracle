@@ -1389,29 +1389,77 @@ JSON:
   }
 
   try {
-    const userContent = imageBase64
-      ? [{ type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }, { type: 'text', text: prompt }]
-      : prompt;
+    let raw = '';
+    
+    if (imageBase64) {
+      // Vision mode - plain text response, no JSON
+      const visionPrompt = `${langInstruction}
+Look at this image carefully and answer the question.
+
+Question: ${situation}
+${decision ? 'Specifically: ' + decision : ''}
+
+Give a clear, detailed answer. Show your work step by step if it's a math problem.`;
+
+      const visionRes = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
+        body: JSON.stringify({
+          model: 'llama-3.2-11b-vision-preview',
+          max_tokens: 1000,
+          temperature: 0.2,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+              { type: 'text', text: visionPrompt }
+            ]
+          }]
+        })
+      });
+      const visionData = await visionRes.json();
+      console.log('Vision response:', visionData);
+      raw = visionData.choices?.[0]?.message?.content || '';
+      
+      clearInterval(iv);
+      ld.style.display = 'none';
+      
+      const rw = document.getElementById('resultWrap');
+      rw.style.display = 'flex';
+      rw.classList.add('fadein');
+      rw.innerHTML = `
+        <div class="result-header">
+          <div style="flex:1;">
+            <div class="rec-label">Oracle Vision Analysis</div>
+            <div class="rec-name" style="font-size:15px;">Answer</div>
+          </div>
+          <div class="best-badge">Image Analysis</div>
+        </div>
+        <div><div class="body-text" style="white-space:pre-wrap;line-height:1.9;">${raw || 'Could not analyze the image. Please try again.'}</div></div>`;
+      btn.disabled = false;
+      return;
+    }
 
     const res = await fetch(GROQ_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
       body: JSON.stringify({
-        model: imageBase64 ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 1400,
         temperature: 0.3,
         messages: [
           { role: 'system', content: `You are Oracle. Respond with valid JSON only. No markdown. ${langInstruction}` },
-          { role: 'user', content: userContent }
+          { role: 'user', content: prompt }
         ]
       })
     });
 
     const data = await res.json();
+    console.log('Response:', data);
     clearInterval(iv);
     ld.style.display = 'none';
 
-    const raw = data.choices?.[0]?.message?.content || '';
+    raw = data.choices?.[0]?.message?.content || '';
     let parsed = null;
     try { 
       const m = raw.match(/\{[\s\S]*\}/); 
