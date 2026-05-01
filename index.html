@@ -555,6 +555,80 @@
   /* SECTIONS */
   .result-section { padding:20px 32px; border-bottom:1px solid rgba(255,255,255,0.04); }
   .result-section:last-child { border-bottom:none; }
+
+  /* ORACLE BODY - NEW LAYOUT */
+  .oracle-body { flex:1; display:grid; grid-template-columns:220px 1fr 0px; overflow:hidden; height:calc(100vh - 65px); transition:grid-template-columns 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .oracle-body.verdict-open { grid-template-columns:220px 1fr 480px; }
+
+  /* SIDEBAR */
+  .sidebar { border-right:1px solid rgba(255,255,255,0.045); display:flex; flex-direction:column; overflow:hidden; background:rgba(0,0,0,0.1); }
+  .sidebar-header { display:flex; align-items:center; justify-content:space-between; padding:16px 16px 10px; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .history-list { flex:1; overflow-y:auto; padding:8px; }
+  .history-empty { font-size:12px; color:var(--text-muted); text-align:center; padding:24px 16px; line-height:1.6; }
+  .history-item { padding:10px 12px; border-radius:10px; cursor:pointer; margin-bottom:4px; border:1px solid transparent; transition:all 0.2s; }
+  .history-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.06); }
+  .history-item.active { background:rgba(74,127,255,0.08); border-color:rgba(74,127,255,0.15); }
+  .history-decision { font-size:12px; color:var(--text-secondary); line-height:1.4; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .history-winner { font-size:10px; color:#00e5a0; display:flex; align-items:center; gap:4px; }
+  .history-time { font-size:10px; color:var(--text-muted); margin-left:auto; }
+
+  /* CHAT AREA */
+  .chat-area { display:flex; flex-direction:column; overflow:hidden; position:relative; }
+  .chat-messages { flex:1; overflow-y:auto; padding:32px 40px; display:flex; flex-direction:column; gap:16px; }
+  
+  /* INTRO */
+  .oracle-intro { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; flex:1; padding:40px 20px; gap:16px; }
+  .intro-gem { margin-bottom:8px; }
+  .intro-title { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; color:var(--text-primary); }
+  .intro-sub { font-size:13px; color:var(--text-secondary); max-width:360px; line-height:1.6; }
+  .intro-examples { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:500px; margin-top:8px; }
+  .example-chip { padding:8px 14px; border-radius:20px; border:1px solid rgba(74,127,255,0.2); background:rgba(74,127,255,0.06); font-size:12px; color:var(--text-secondary); cursor:pointer; transition:all 0.2s; }
+  .example-chip:hover { border-color:rgba(74,127,255,0.4); background:rgba(74,127,255,0.12); color:var(--text-primary); transform:translateY(-1px); }
+
+  /* MESSAGES */
+  .msg { display:flex; gap:12px; animation:msgIn 0.3s ease; max-width:680px; }
+  .msg.user { flex-direction:row-reverse; margin-left:auto; }
+  @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .msg-avatar { width:30px; height:30px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:500; margin-top:2px; }
+  .msg-avatar.oracle { background:rgba(74,127,255,0.2); border:1px solid rgba(74,127,255,0.3); color:#7ab0ff; }
+  .msg-avatar.user { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:var(--text-secondary); }
+  .msg-bubble { padding:12px 16px; border-radius:16px; font-size:13px; line-height:1.7; max-width:560px; }
+  .msg-bubble.oracle { background:var(--glass-bg); border:1px solid var(--glass-border); backdrop-filter:blur(16px); color:var(--text-secondary); border-radius:4px 16px 16px 16px; }
+  .msg-bubble.user { background:rgba(74,127,255,0.15); border:1px solid rgba(74,127,255,0.25); color:var(--text-primary); border-radius:16px 4px 16px 16px; }
+
+  /* OPTION PICKER */
+  .option-picker { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+  .option-input-row { display:flex; gap:8px; align-items:center; }
+  .option-letter-badge { width:26px; height:26px; border-radius:7px; background:rgba(74,127,255,0.1); border:1px solid rgba(74,127,255,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--accent-blue); font-weight:600; flex-shrink:0; }
+  .option-text-input { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:9px 12px; color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; transition:all 0.2s; }
+  .option-text-input:focus { border-color:rgba(74,127,255,0.4); background:rgba(74,127,255,0.04); }
+  .option-text-input::placeholder { color:rgba(255,255,255,0.2); }
+  .add-option-btn { background:rgba(74,127,255,0.08); border:1px dashed rgba(74,127,255,0.2); color:#7ab0ff; border-radius:10px; padding:8px 14px; font-size:12px; cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif; }
+  .add-option-btn:hover { background:rgba(74,127,255,0.14); }
+  .submit-options-btn { width:100%; padding:12px; border-radius:12px; border:1px solid rgba(74,127,255,0.35); background:rgba(74,127,255,0.15); color:#8bbfff; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; transition:all 0.25s; font-weight:500; margin-top:4px; position:relative; overflow:hidden; }
+  .submit-options-btn::before { content:''; position:absolute; top:0; left:0; right:0; height:50%; background:linear-gradient(180deg,rgba(150,200,255,0.08),transparent); }
+  .submit-options-btn:hover { background:rgba(74,127,255,0.25); transform:translateY(-1px); box-shadow:0 8px 24px rgba(74,127,255,0.2); }
+
+  /* THINKING */
+  .thinking { display:flex; gap:4px; align-items:center; padding:4px 0; }
+  .thinking span { width:6px; height:6px; border-radius:50%; background:rgba(74,127,255,0.5); animation:think 1.2s ease-in-out infinite; }
+  .thinking span:nth-child(2) { animation-delay:0.2s; }
+  .thinking span:nth-child(3) { animation-delay:0.4s; }
+  @keyframes think { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-6px);opacity:1} }
+
+  /* CHAT INPUT */
+  .chat-input-area { padding:16px 40px 20px; border-top:1px solid rgba(255,255,255,0.04); background:rgba(4,7,15,0.4); }
+  .chat-input-wrap { display:flex; align-items:flex-end; gap:10px; padding:10px 14px; border-radius:16px; }
+  .chat-input { flex:1; background:none; border:none; color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:14px; resize:none; outline:none; line-height:1.6; max-height:120px; min-height:24px; }
+  .chat-input::placeholder { color:rgba(255,255,255,0.2); }
+  .send-btn { width:34px; height:34px; border-radius:10px; border:1px solid rgba(74,127,255,0.3); background:rgba(74,127,255,0.15); color:#7ab0ff; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+  .send-btn:hover { background:rgba(74,127,255,0.25); transform:translateY(-1px); }
+  .send-btn:disabled { opacity:0.3; cursor:not-allowed; }
+  .chat-hint { font-size:10px; color:var(--text-muted); text-align:center; margin-top:8px; }
+
+  /* VERDICT PANEL */
+  .verdict-panel { border-left:1px solid rgba(255,255,255,0.045); overflow-y:auto; background:rgba(0,0,0,0.15); }
+  .verdict-panel-inner { padding:0; }
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
   .fadein { animation:fi 0.4s ease forwards; }
@@ -858,82 +932,57 @@
     </div>
   </div>
   <div class="oracle-body">
-    <!-- INPUT PANEL -->
-    <div class="input-panel">
-      <div style="margin-bottom:20px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:0.04em;margin-bottom:4px;">Oracle Console</div>
-        <div style="font-size:11px;color:var(--text-muted);">Ask anything — math, decisions, or any question</div>
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Decision History</div>
+        <button onclick="clearHistory()" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:0;">Clear</button>
       </div>
-
-      <div class="input-section">
-        <div class="panel-label" data-i18n="yourSituation">Your Situation / Question</div>
-        <textarea class="crystal-input" id="situation" rows="4" placeholder="Describe your situation, ask a question, or paste a problem..."></textarea>
-      </div>
-
-
-
-      <div class="input-section">
-        <div class="panel-label" data-i18n="theDecision">The Question / Decision</div>
-        <textarea class="crystal-input" id="decision" rows="2" placeholder="What do you want Oracle to answer or decide?"></textarea>
-      </div>
-
-      <div class="input-divider"></div>
-
-      <div class="input-section">
-        <div class="panel-label" style="display:flex;align-items:center;justify-content:space-between;">
-          <span>Options <span style="opacity:0.5;font-size:9px;">(optional for direct questions)</span></span>
-          <button onclick="addOption()" style="background:rgba(74,127,255,0.1);border:1px solid rgba(74,127,255,0.2);color:#7ab0ff;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;">+ Add</button>
-        </div>
-        <div class="options-stack" id="optionsStack">
-          <div class="opt-row" id="optRow0"><div class="opt-letter">A</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option A"><button class="remove-opt" onclick="removeOption(0)" style="display:none;">✕</button></div>
-          <div class="opt-row" id="optRow1"><div class="opt-letter">B</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option B"><button class="remove-opt" onclick="removeOption(1)" style="display:none;">✕</button></div>
-        </div>
-        <div id="optionWarning" style="display:none;margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(255,74,107,0.08);border:1px solid rgba(255,74,107,0.2);font-size:11px;color:#ff8fa3;">
-          ⚠ Oracle needs at least 2 options to compare.
-        </div>
-      </div>
-
-      <div style="margin-top:auto;padding-top:16px;">
-        <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">Ask Oracle →</button>
-        <div class="powered">Powered by Groq · Llama 3.3 70B</div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No decisions yet.<br>Start a conversation.</div>
       </div>
     </div>
 
-    <!-- OUTPUT PANEL -->
-    <div class="output-panel">
-      <div class="output-inner">
-        <div class="empty-state" id="emptyState">
-          <div class="empty-orb">
-            <svg width="24" height="24" viewBox="0 0 72 72" fill="none">
-              <polygon points="36,4 64,22 64,50 36,68 8,50 8,22" fill="rgba(74,127,255,0.08)" stroke="rgba(74,127,255,0.3)" stroke-width="1"/>
-              <circle cx="36" cy="36" r="4" fill="rgba(74,127,255,0.5)"/>
+    <!-- CHAT AREA -->
+    <div class="chat-area" id="chatArea">
+      <div class="chat-messages" id="chatMessages">
+        <div class="oracle-intro">
+          <div class="intro-gem">
+            <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
+              <polygon points="36,4 64,22 64,50 36,68 8,50 8,22" fill="rgba(74,127,255,0.08)" stroke="rgba(74,127,255,0.35)" stroke-width="0.8"/>
+              <polygon points="36,16 56,27 56,45 36,56 16,45 16,27" fill="rgba(0,212,255,0.04)" stroke="rgba(0,212,255,0.15)" stroke-width="0.6"/>
+              <circle cx="36" cy="36" r="4" fill="rgba(74,127,255,0.7)"/>
             </svg>
           </div>
-          <div style="text-align:center;">
-            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:10px;color:rgba(255,255,255,0.3);">Awaiting your decision</div>
-            <p style="margin-bottom:20px;">Fill in your situation, decision, and at least 2 options — Oracle will analyze the evidence and give you a verdict.</p>
-            <div style="display:flex;flex-direction:column;gap:8px;max-width:280px;margin:0 auto;text-align:left;">
-              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(74,127,255,0.4);">①</span> Describe your situation</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(74,127,255,0.4);">②</span> State the decision</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(74,127,255,0.4);">③</span> Add 2+ options to compare</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(0,229,160,0.4);">→</span> Oracle picks the winner</div>
-            </div>
+          <div class="intro-title">What decision are you facing?</div>
+          <div class="intro-sub">Describe your situation naturally. Oracle will guide you through the rest.</div>
+          <div class="intro-examples">
+            <div class="example-chip" onclick="useExample(this)">Should I quit my job to start a business?</div>
+            <div class="example-chip" onclick="useExample(this)">Which city should I move to for my career?</div>
+            <div class="example-chip" onclick="useExample(this)">Should I take the investment or bootstrap?</div>
           </div>
         </div>
-        <div class="loading-state" id="loadingState">
-          <div class="loader-ring"></div>
-          <div style="display:flex;flex-direction:column;gap:7px;">
-            <div class="loading-step" id="ls1">Analyzing your input...</div>
-            <div class="loading-step" id="ls2">Processing image & context...</div>
-            <div class="loading-step" id="ls3">Reasoning through the problem...</div>
-            <div class="loading-step" id="ls4">Generating response...</div>
-          </div>
+      </div>
+
+      <!-- CHAT INPUT -->
+      <div class="chat-input-area" id="chatInputArea">
+        <div class="chat-input-wrap glass">
+          <textarea class="chat-input" id="chatInput" placeholder="Describe your situation..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+          <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
         </div>
-        <div class="result-wrap" id="resultWrap"></div>
+        <div class="chat-hint" id="chatHint">Press Enter to send · Shift+Enter for new line</div>
       </div>
     </div>
+
+    <!-- VERDICT PANEL -->
+    <div class="verdict-panel" id="verdictPanel" style="display:none;">
+      <div class="verdict-panel-inner" id="verdictPanelInner"></div>
+    </div>
   </div>
-</div>
 
 <script>
 const GROQ_KEY = window.GROQ_KEY;
@@ -1282,143 +1331,219 @@ function isFlagged(text) {
   return BLOCKED.some(w => lower.includes(w));
 }
 
-// Dynamic options
-let optionCount = 2;
-const letters = ['A','B','C','D','E','F'];
+// ── CONVERSATION STATE ──
+let convState = 'idle'; // idle | got_situation | got_options | analyzing
+let convSituation = '';
+let convDecision = '';
+let convOptions = [];
+let optCount = 2;
+const LETTERS = ['A','B','C','D','E','F'];
+let sessionHistory = JSON.parse(localStorage.getItem('oracle_history') || '[]');
 
-function addOption() {
-  if (optionCount >= 6) return;
-  const stack = document.getElementById('optionsStack');
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!sessionHistory.length) {
+    list.innerHTML = '<div class="history-empty">No decisions yet.<br>Start a conversation.</div>';
+    return;
+  }
+  list.innerHTML = sessionHistory.slice().reverse().map((h,i) => `
+    <div class="history-item" onclick="loadHistory(${sessionHistory.length-1-i})">
+      <div class="history-decision">${h.decision}</div>
+      <div class="history-winner">✓ ${h.winner}</div>
+    </div>`).join('');
+}
+
+function saveHistory(decision, winner, verdictHTML) {
+  sessionHistory.push({ decision, winner, verdictHTML, time: Date.now() });
+  if (sessionHistory.length > 20) sessionHistory.shift();
+  localStorage.setItem('oracle_history', JSON.stringify(sessionHistory));
+  renderHistory();
+}
+
+function loadHistory(idx) {
+  const h = sessionHistory[idx];
+  if (!h) return;
+  showVerdict(h.verdictHTML);
+}
+
+function clearHistory() {
+  sessionHistory = [];
+  localStorage.removeItem('oracle_history');
+  renderHistory();
+}
+
+function useExample(el) {
+  document.getElementById('chatInput').value = el.textContent;
+  sendMessage();
+}
+
+function addOracleMsg(html, typing=false) {
+  const msgs = document.getElementById('chatMessages');
+  // Remove intro if present
+  const intro = msgs.querySelector('.oracle-intro');
+  if (intro) intro.remove();
+
   const div = document.createElement('div');
-  div.className = 'opt-row';
-  div.id = `optRow${optionCount}`;
-  div.innerHTML = `<div class="opt-letter">${letters[optionCount]}</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option ${letters[optionCount]}"><button class="remove-opt" onclick="removeOption(${optionCount})">✕</button>`;
-  stack.appendChild(div);
-  optionCount++;
-  updateRemoveButtons();
+  div.className = 'msg oracle';
+  if (typing) {
+    div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle"><div class="thinking"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+  div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
 }
 
-function removeOption(idx) {
-  const row = document.getElementById(`optRow${idx}`);
-  if (row) row.remove();
-  rebuildOptions();
+function addUserMsg(text) {
+  const msgs = document.getElementById('chatMessages');
+  const intro = msgs.querySelector('.oracle-intro');
+  if (intro) intro.remove();
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
-function rebuildOptions() {
-  const stack = document.getElementById('optionsStack');
-  const rows = stack.querySelectorAll('.opt-row');
-  optionCount = rows.length;
-  rows.forEach((row, i) => {
-    row.id = `optRow${i}`;
-    row.querySelector('.opt-letter').textContent = letters[i];
-    row.querySelector('.opt-input').placeholder = `Option ${letters[i]}`;
-    const btn = row.querySelector('.remove-opt');
-    if (btn) btn.setAttribute('onclick', `removeOption(${i})`);
-  });
-  updateRemoveButtons();
+function addOptionPicker() {
+  const msgs = document.getElementById('chatMessages');
+  optCount = 2;
+  const div = document.createElement('div');
+  div.className = 'msg oracle';
+  div.id = 'optionPickerMsg';
+  div.innerHTML = `
+    <div class="msg-avatar oracle">O</div>
+    <div class="msg-bubble oracle" style="min-width:320px;">
+      <div style="margin-bottom:12px;font-size:13px;">What are your options? Add at least 2 paths you're considering.</div>
+      <div class="option-picker" id="optionPicker">
+        <div class="option-input-row">
+          <div class="option-letter-badge">A</div>
+          <input type="text" class="option-text-input" placeholder="First option..." id="optIn_0">
+        </div>
+        <div class="option-input-row">
+          <div class="option-letter-badge">B</div>
+          <input type="text" class="option-text-input" placeholder="Second option..." id="optIn_1">
+        </div>
+      </div>
+      <button class="add-option-btn" style="width:100%;margin-top:8px;" onclick="addOptionRow()">+ Add another option</button>
+      <button class="submit-options-btn" onclick="submitOptions()">Analyze with Oracle →</button>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => document.getElementById('optIn_0')?.focus(), 100);
 }
 
-function updateRemoveButtons() {
-  const rows = document.querySelectorAll('.opt-row');
-  rows.forEach((row, i) => {
-    const btn = row.querySelector('.remove-opt');
-    if (btn) btn.style.display = rows.length > 2 ? 'flex' : 'none';
-  });
+function addOptionRow() {
+  if (optCount >= 6) return;
+  const picker = document.getElementById('optionPicker');
+  const row = document.createElement('div');
+  row.className = 'option-input-row';
+  row.innerHTML = `<div class="option-letter-badge">${LETTERS[optCount]}</div><input type="text" class="option-text-input" placeholder="Option ${LETTERS[optCount]}..." id="optIn_${optCount}">`;
+  picker.appendChild(row);
+  optCount++;
+  document.getElementById(`optIn_${optCount-1}`)?.focus();
 }
 
-let imageBase64 = null;
-
-async function analyze() {
-  const situation = (document.getElementById('situation').value || '').trim();
-  const decision = (document.getElementById('decision').value || '').trim();
-
-  if (!situation || !decision) {
-    alert('Please fill in both your situation and your decision.');
+function submitOptions() {
+  const opts = [];
+  for (let i = 0; i < optCount; i++) {
+    const v = document.getElementById(`optIn_${i}`)?.value?.trim();
+    if (v) opts.push({ letter: LETTERS[i], text: v });
+  }
+  if (opts.length < 2) {
+    const btn = document.querySelector('.submit-options-btn');
+    btn.style.borderColor = 'rgba(255,74,107,0.5)';
+    btn.textContent = '⚠ Add at least 2 options';
+    setTimeout(() => { btn.style.borderColor = ''; btn.textContent = 'Analyze with Oracle →'; }, 2000);
     return;
   }
+  convOptions = opts;
 
-  // Collect options
-  const optInputs = document.querySelectorAll('.opt-input');
-  const options = [];
-  optInputs.forEach((inp, idx) => {
-    if (inp && inp.value && inp.value.trim()) {
-      options.push({ letter: letters[idx] || String.fromCharCode(65+idx), text: inp.value.trim() });
-    }
-  });
+  // Remove picker
+  document.getElementById('optionPickerMsg')?.remove();
 
-  // Force minimum 2 options
-  if (options.length < 2) {
-    const warn = document.getElementById('optionWarning');
-    if (warn) { warn.style.display = 'block'; setTimeout(() => warn.style.display = 'none', 4000); }
-    else alert('Please add at least 2 options for Oracle to compare.');
-    return;
-  }
-  const warn = document.getElementById('optionWarning');
-  if (warn) warn.style.display = 'none';
+  // Show user's options as message
+  addUserMsg(opts.map(o => `<strong>${o.letter}:</strong> ${o.text}`).join('<br>'));
 
-  // Block check
-  const allText = (situation + ' ' + decision + ' ' + options.map(o=>o.text).join(' ')).toLowerCase();
-  if (BLOCKED.some(w => allText.includes(w))) {
-    document.getElementById('emptyState').style.display = 'none';
-    const rw = document.getElementById('resultWrap');
-    rw.style.display = 'flex';
-    rw.innerHTML = `<div style="text-align:center;padding:40px 20px;"><div style="font-size:13px;color:var(--danger);margin-bottom:8px;font-weight:500;">Request Blocked</div><div style="font-size:13px;color:var(--text-muted);max-width:320px;margin:0 auto;line-height:1.6;">This request violates Oracle's usage policy.</div></div>`;
-    return;
-  }
+  // Analyze
+  runAnalysis();
+}
 
-  const btn = document.getElementById('analyzeBtn');
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  const btn = document.getElementById('sendBtn');
   btn.disabled = true;
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('resultWrap').style.display = 'none';
-  document.getElementById('resultWrap').innerHTML = '';
 
-  const ld = document.getElementById('loadingState');
-  ld.style.display = 'flex';
-  ['ls1','ls2','ls3','ls4'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('on');
-  });
-  let si = 0;
-  const iv = setInterval(() => {
-    if (si < 4) {
-      const el = document.getElementById('ls'+(si+1));
-      if (el) el.classList.add('on');
-      si++;
-    }
-  }, 800);
+  addUserMsg(text);
 
+  if (convState === 'idle') {
+    convSituation = text;
+    convDecision = text;
+    convState = 'got_situation';
+
+    const thinking = addOracleMsg('', true);
+    await sleep(800);
+    thinking.querySelector('.msg-bubble').innerHTML = `Got it. Now — what are your options? What paths are you considering?`;
+    convState = 'got_situation';
+    addOptionPicker();
+  } else if (convState === 'got_situation') {
+    // Extra context added
+    convSituation += ' ' + text;
+    const thinking = addOracleMsg('', true);
+    await sleep(600);
+    thinking.querySelector('.msg-bubble').innerHTML = `Noted. Add your options below and Oracle will analyze.`;
+    if (!document.getElementById('optionPickerMsg')) addOptionPicker();
+  }
+
+  btn.disabled = false;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runAnalysis() {
   const langInstruction = t('respondIn');
+  const thinking = addOracleMsg('', true);
 
-  const optText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
-  const prompt = `You are Oracle — a brutally honest, evidence-driven decision system used by founders and executives. ${langInstruction}
+  // Animate thinking steps
+  const steps = ['Searching real-world cases...', 'Scoring each option...', 'Building verdict...'];
+  for (const step of steps) {
+    await sleep(900);
+    thinking.querySelector('.msg-bubble').innerHTML = `<div class="thinking"><span></span><span></span><span></span></div><div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${step}</div>`;
+  }
 
-Situation: ${situation}
-Decision: ${decision}
+  const optText = convOptions.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
+  const prompt = `You are Oracle — a brutally honest, evidence-driven decision system. ${langInstruction}
+
+Situation: ${convSituation}
 Options:
 ${optText}
 
 Instructions:
-- Think like a strategist who has seen hundreds of these decisions play out
-- Give DIFFERENTIATED scores — winner should be clearly ahead, use full 0-100 range
-- Be specific — name real companies, studies, or outcomes. No generic advice
+- Think like a strategist who has seen hundreds of these decisions
+- Give DIFFERENTIATED scores — winner clearly ahead, use full 0-100 range
+- Be specific — name real companies, studies, outcomes
 - For losing options: describe the exact failure mode
 - Pick one winner decisively
 
-Respond ONLY in valid JSON. No markdown, no backticks. Language: ${langInstruction}
+Respond ONLY in valid JSON, no markdown, no backticks. Language: ${langInstruction}
 
-{"type":"decision","no_good_answer":false,"no_good_answer_reason":"","summary":"2-3 sharp sentences about what is actually at stake in this decision","similar_cases":"Name 2-3 specific real companies or people who faced this exact decision and what happened","options":[${options.map(o => '{"letter":"' + o.letter + '","name":"' + o.text + '","score":0,"analysis":"Specific evidence-backed analysis with real examples","pros":"Most compelling advantage with specifics","cons":"Biggest risk with specifics","consequence":"Exactly what failure looks like if someone picks this — be specific"}').join(',')}],"recommendation":"exact option name","recommendation_letter":"${options[0]?.letter || 'A'}","reasoning":"2-3 decisive sentences why this wins. Reference evidence. Be direct.","sources":["specific source 1","specific source 2","specific source 3"]}`;
+{"type":"decision","no_good_answer":false,"no_good_answer_reason":"","summary":"2-3 sharp sentences about what is actually at stake","similar_cases":"Name 2-3 specific real companies or people who faced this exact decision and what happened","options":[${convOptions.map(o => '{"letter":"' + o.letter + '","name":"' + o.text + '","score":0,"analysis":"Specific evidence-backed analysis with real examples","pros":"Most compelling advantage","cons":"Biggest risk","consequence":"Exactly what failure looks like — be specific"}').join(',')}],"recommendation":"exact option name","recommendation_letter":"${convOptions[0]?.letter || 'A'}","reasoning":"2-3 decisive sentences why this wins. Reference evidence.","sources":["source1","source2","source3"]}`;
 
   try {
-    let raw = '';
-    
-
-
-    const res = await fetch(GROQ_URL, {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 1400,
+        max_tokens: 1600,
         temperature: 0.3,
         messages: [
           { role: 'system', content: `You are Oracle. Respond with valid JSON only. No markdown. ${langInstruction}` },
@@ -1428,161 +1553,137 @@ Respond ONLY in valid JSON. No markdown, no backticks. Language: ${langInstructi
     });
 
     const data = await res.json();
-    console.log('Response:', data);
-    clearInterval(iv);
-    ld.style.display = 'none';
-
-    raw = data.choices?.[0]?.message?.content || '';
+    const raw = data.choices?.[0]?.message?.content || '';
     let parsed = null;
-    try { 
-      const m = raw.match(/\{[\s\S]*\}/); 
-      if (m) parsed = JSON.parse(m[0]); 
-    } catch(e) { 
-      console.error('Parse error:', e, 'Raw:', raw);
-      parsed = null; 
-    }
+    try { const m = raw.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); } catch(e) {}
 
-    const rw = document.getElementById('resultWrap');
-    rw.style.display = 'flex';
-    rw.classList.add('fadein');
+    thinking.remove();
 
     if (!parsed) {
-      rw.innerHTML = `<div class="result-header"><div style="flex:1;"><div class="rec-label">Oracle</div><div class="rec-name">Answer</div></div></div><div><div class="body-text" style="white-space:pre-wrap;line-height:1.8;">${raw}</div></div>`;
-    } else if (parsed.type === 'direct') {
-      if (parsed.no_answer) {
-        rw.innerHTML = `
-          <div class="result-header">
-            <div style="flex:1;"><div class="rec-label">Oracle</div><div class="rec-name">No definitive answer found</div></div>
-            <div class="best-badge" style="background:rgba(255,74,107,0.1);border-color:rgba(255,74,107,0.2);color:#ff8fa3;">No Answer</div>
-          </div>
-          <div><div class="section-title">Why</div><div class="body-text">${parsed.no_answer_reason || 'This question does not have a clear answer.'}</div></div>`;
-      } else {
-        const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
-        const confColor = parsed.confidence==='high'?'#00e5a0':parsed.confidence==='medium'?'#f59e0b':'#ff7a94';
-        const answerText = parsed.answer || parsed.explanation || raw;
-        const explanationText = parsed.explanation || '';
-        rw.innerHTML = `
-          <div class="result-header">
-            <div style="flex:1;">
-              <div class="rec-label">Oracle Answer</div>
-              <div class="rec-name" style="font-size:18px;line-height:1.5;color:#00e5a0;">${answerText}</div>
-            </div>
-            <div class="best-badge" style="color:${confColor};">${parsed.confidence||'high'} confidence</div>
-          </div>
-          ${explanationText ? `<div><div class="section-title">Step by Step</div><div class="body-text" style="white-space:pre-wrap;line-height:1.8;">${explanationText}</div></div>` : ''}
-          ${chips ? `<div><div class="section-title">Sources</div><div>${chips}</div></div>` : ''}`;
-      }
-    } else {
-      if (parsed.no_good_answer === true) {
-        rw.innerHTML = `
-          <div class="result-header">
-            <div style="flex:1;">
-              <div class="rec-label">Oracle Analysis</div>
-              <div class="rec-name" style="color:#ff8fa3;">None of these options are correct</div>
-            </div>
-            <div class="best-badge" style="background:rgba(255,74,107,0.1);border-color:rgba(255,74,107,0.2);color:#ff8fa3;">No Good Option</div>
-          </div>
-          <div><div class="section-title">Why</div><div class="body-text">${parsed.no_good_answer_reason||''}</div></div>
-          <div><div class="section-title">Correct Answer / Suggestion</div><div class="body-text">${parsed.reasoning||''}</div></div>`;
-      } else {
-        function makeGauge(score, color, id) {
-          const r = 28; const circ = 2 * Math.PI * r;
-          const dash = (score/100) * circ;
-          return `<svg class="gauge-svg" width="70" height="70" viewBox="0 0 70 70">
-            <circle cx="35" cy="35" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6"/>
-            <circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="6"
-              stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
-              stroke-linecap="round" transform="rotate(-90 35 35)"
-              id="gauge_${id}" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.25,0.46,0.45,0.94)"/>
-            <text x="35" y="35" text-anchor="middle" dominant-baseline="central"
-              fill="${color}" font-size="14" font-weight="500" font-family="DM Sans">${score}%</text>
-          </svg>`;
-        }
-
-        const opts = parsed.options || [];
-        const winLetter = parsed.recommendation_letter;
-        const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
-        const isTwoOpt = opts.length === 2;
-
-        // Build VS cards
-        const vsCards = opts.map((opt, i) => {
-          const isWin = opt.letter === winLetter;
-          const sc = opt.score || 0;
-          const color = sc >= 70 ? '#00e5a0' : sc >= 40 ? '#f59e0b' : '#ff7a94';
-          return `<div class="vs-card ${isWin?'winner':'loser'}">
-            <div class="vs-card-header">
-              <div class="vs-letter ${isWin?'win':'lose'}">${opt.letter}</div>
-              <div class="vs-name">${opt.name}</div>
-              ${isWin ? '<div class="vs-win-tag">✓ ORACLE PICKS</div>' : ''}
-            </div>
-            <div class="gauge-wrap">
-              ${makeGauge(sc, color, opt.letter)}
-              <div class="gauge-info">
-                <div class="gauge-score" style="color:${color};">${sc}%</div>
-                <div class="gauge-label">Success Rate</div>
-              </div>
-            </div>
-            <div class="vs-analysis">${opt.analysis||''}</div>
-            <div class="vs-tags">
-              <span class="vs-pro">+ ${opt.pros||''}</span>
-              <span class="vs-con">− ${opt.cons||''}</span>
-            </div>
-            ${!isWin && opt.consequence ? `<div class="vs-consequence"><div class="vs-consequence-label">If you pick this instead</div>${opt.consequence}</div>` : ''}
-          </div>`;
-        });
-
-        // Insert VS divider for 2 options
-        let vsGrid = '';
-        if (isTwoOpt) {
-          vsGrid = `<div class="vs-grid two-col">${vsCards[0]}<div class="vs-divider">VS</div>${vsCards[1]}</div>`;
-        } else {
-          vsGrid = `<div class="vs-grid multi-col">${vsCards.join('')}</div>`;
-        }
-
-        rw.innerHTML = `
-          <div class="verdict-hero fadein">
-            <div class="verdict-eyebrow">Oracle Verdict</div>
-            <div class="verdict-winner">${parsed.recommendation||''}</div>
-            <div class="verdict-reasoning">${parsed.reasoning||''}</div>
-          </div>
-          ${vsGrid}
-          <div class="result-section">
-            <div class="section-title">${t('decisionContext')}</div>
-            <div class="body-text">${parsed.summary||''}</div>
-          </div>
-          <div class="result-section">
-            <div class="section-title">${t('similarCases')}</div>
-            <div class="body-text">${parsed.similar_cases||''}</div>
-          </div>
-          <div class="result-section">
-            <div class="section-title">${t('intSources')}</div>
-            <div>${chips}</div>
-          </div>`;
-
-        // Animate circular gauges
-        setTimeout(() => {
-          opts.forEach(opt => {
-            const circle = document.getElementById('gauge_' + opt.letter);
-            if (circle) {
-              const r = 28; const circ = 2 * Math.PI * r;
-              const dash = ((opt.score||0)/100) * circ;
-              circle.style.strokeDashoffset = circ - dash;
-            }
-          });
-        }, 150);
-      }
+      addOracleMsg(`<div style="color:var(--danger);">Could not parse response. Please try again.</div>`);
+      convState = 'idle';
+      return;
     }
+
+    // Build verdict HTML
+    const verdictHTML = buildVerdictHTML(parsed);
+
+    // Show verdict in chat as summary
+    addOracleMsg(`Oracle's verdict: <strong style="color:#00e5a0;">${parsed.recommendation}</strong> — ${parsed.reasoning}`);
+
+    // Show full verdict panel
+    showVerdict(verdictHTML);
+
+    // Save to history
+    saveHistory(convSituation.substring(0, 60), parsed.recommendation, verdictHTML);
+
+    // Reset for next decision
+    convState = 'idle';
+    convOptions = [];
+
+    // Add follow-up prompt
+    setTimeout(() => {
+      addOracleMsg(`Want to explore another decision? Just describe your next situation.`);
+    }, 800);
+
   } catch(err) {
-    clearInterval(iv);
-    document.getElementById('loadingState').style.display = 'none';
-    const rw = document.getElementById('resultWrap');
-    rw.style.display = 'flex';
-    rw.innerHTML = `<div style="color:var(--danger);font-size:13px;padding:20px;">Error: ${err.message}</div>`;
+    thinking.remove();
+    addOracleMsg(`<div style="color:var(--danger);">Error: ${err.message}</div>`);
+    convState = 'idle';
   }
-  btn.disabled = false;
 }
 
+function buildVerdictHTML(parsed) {
+  function makeGauge(score, color, id) {
+    const r = 28; const circ = 2 * Math.PI * r;
+    return `<svg class="gauge-svg" width="70" height="70" viewBox="0 0 70 70">
+      <circle cx="35" cy="35" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6"/>
+      <circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="6"
+        stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
+        stroke-linecap="round" transform="rotate(-90 35 35)"
+        id="gauge_${id}" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.25,0.46,0.45,0.94)"/>
+      <text x="35" y="35" text-anchor="middle" dominant-baseline="central"
+        fill="${color}" font-size="13" font-weight="500" font-family="DM Sans">${score}%</text>
+    </svg>`;
+  }
+
+  const opts = parsed.options || [];
+  const winLetter = parsed.recommendation_letter;
+  const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
+  const isTwoOpt = opts.length === 2;
+
+  const vsCards = opts.map(opt => {
+    const isWin = opt.letter === winLetter;
+    const sc = opt.score || 0;
+    const color = sc >= 70 ? '#00e5a0' : sc >= 40 ? '#f59e0b' : '#ff7a94';
+    return `<div class="vs-card ${isWin?'winner':'loser'}">
+      <div class="vs-card-header">
+        <div class="vs-letter ${isWin?'win':'lose'}">${opt.letter}</div>
+        <div class="vs-name">${opt.name}</div>
+        ${isWin ? '<div class="vs-win-tag">✓ ORACLE PICKS</div>' : ''}
+      </div>
+      <div class="gauge-wrap">
+        ${makeGauge(sc, color, opt.letter + '_' + Date.now())}
+        <div class="gauge-info">
+          <div class="gauge-score" style="color:${color};">${sc}%</div>
+          <div class="gauge-label">Success Rate</div>
+        </div>
+      </div>
+      <div class="vs-analysis">${opt.analysis||''}</div>
+      <div class="vs-tags">
+        <span class="vs-pro">+ ${opt.pros||''}</span>
+        <span class="vs-con">− ${opt.cons||''}</span>
+      </div>
+      ${!isWin && opt.consequence ? `<div class="vs-consequence"><div class="vs-consequence-label">If you pick this instead</div>${opt.consequence}</div>` : ''}
+    </div>`;
+  });
+
+  let vsGrid = isTwoOpt
+    ? `<div class="vs-grid two-col">${vsCards[0]}<div class="vs-divider">VS</div>${vsCards[1]}</div>`
+    : `<div class="vs-grid multi-col">${vsCards.join('')}</div>`;
+
+  return `
+    <div class="verdict-hero">
+      <div class="verdict-eyebrow">Oracle Verdict</div>
+      <div class="verdict-winner">${parsed.recommendation||''}</div>
+      <div class="verdict-reasoning">${parsed.reasoning||''}</div>
+    </div>
+    ${vsGrid}
+    <div class="result-section">
+      <div class="section-title">Decision Context</div>
+      <div class="body-text">${parsed.summary||''}</div>
+    </div>
+    <div class="result-section">
+      <div class="section-title">Real Cases</div>
+      <div class="body-text">${parsed.similar_cases||''}</div>
+    </div>
+    <div class="result-section">
+      <div class="section-title">Sources</div>
+      <div>${chips}</div>
+    </div>`;
+}
+
+function showVerdict(html) {
+  const panel = document.getElementById('verdictPanel');
+  const inner = document.getElementById('verdictPanelInner');
+  inner.innerHTML = html;
+  panel.style.display = 'block';
+  document.querySelector('.oracle-body').classList.add('verdict-open');
+
+  // Animate gauges
+  setTimeout(() => {
+    document.querySelectorAll('[id^="gauge_"]').forEach(el => {
+      const r = 28; const circ = 2 * Math.PI * r;
+      const scoreText = el.parentElement?.querySelector('text')?.textContent || '0';
+      const score = parseInt(scoreText);
+      el.style.strokeDashoffset = circ - (score/100)*circ;
+    });
+  }, 200);
+}
+
+renderHistory();
 applyLang();
+
 </script>
 </body>
 </html>
