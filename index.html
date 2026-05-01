@@ -1663,13 +1663,16 @@ function buildVerdictHTML(parsed) {
 }
 
 function closeVerdict() {
-  document.getElementById('verdictPanel').classList.remove('open');
+  const panel = document.getElementById('verdictPanel');
+  panel.classList.remove('open');
+  panel.style.display = 'none';
 }
 
 function showVerdict(html) {
   const panel = document.getElementById('verdictPanel');
   const inner = document.getElementById('verdictPanelInner');
   inner.innerHTML = html;
+  panel.style.display = 'flex';
   panel.classList.add('open');
 
   // Animate gauges
