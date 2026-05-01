@@ -983,16 +983,7 @@
       </div>
     </div>
 
-    <!-- VERDICT MODAL -->
-    <div class="verdict-panel" id="verdictPanel" onclick="if(event.target===this)closeVerdict()">
-      <div class="verdict-modal">
-        <div class="verdict-panel-header">
-          <div class="verdict-panel-title">Oracle Verdict</div>
-          <button class="verdict-close-btn" onclick="closeVerdict()">✕</button>
-        </div>
-        <div class="verdict-panel-inner" id="verdictPanelInner"></div>
-      </div>
-    </div>
+
   </div>
 
 <script>
@@ -1696,5 +1687,15 @@ renderHistory();
 applyLang();
 
 </script>
+<!-- VERDICT MODAL -->
+<div class="verdict-panel" id="verdictPanel" onclick="if(event.target===this)closeVerdict()">
+  <div class="verdict-modal">
+    <div class="verdict-panel-header">
+      <div class="verdict-panel-title">Oracle Verdict</div>
+      <button class="verdict-close-btn" onclick="closeVerdict()">✕</button>
+    </div>
+    <div class="verdict-panel-inner" id="verdictPanelInner"></div>
+  </div>
+</div>
 </body>
 </html>
