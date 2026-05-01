@@ -831,9 +831,15 @@
               <circle cx="36" cy="36" r="4" fill="rgba(74,127,255,0.5)"/>
             </svg>
           </div>
-          <div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;margin-bottom:8px;color:rgba(255,255,255,0.3);">Awaiting input</div>
-            <p>Ask a question, upload an image, or describe a decision — Oracle will respond instantly.</p>
+          <div style="text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:10px;color:rgba(255,255,255,0.3);">Awaiting your decision</div>
+            <p style="margin-bottom:20px;">Fill in your situation, decision, and at least 2 options — Oracle will analyze the evidence and give you a verdict.</p>
+            <div style="display:flex;flex-direction:column;gap:8px;max-width:280px;margin:0 auto;text-align:left;">
+              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(74,127,255,0.4);">①</span> Describe your situation</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(74,127,255,0.4);">②</span> State the decision</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(74,127,255,0.4);">③</span> Add 2+ options to compare</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.2);display:flex;align-items:center;gap:8px;"><span style="color:rgba(0,229,160,0.4);">→</span> Oracle picks the winner</div>
+            </div>
           </div>
         </div>
         <div class="loading-state" id="loadingState">
@@ -1248,8 +1254,8 @@ async function analyze() {
   const situation = (document.getElementById('situation').value || '').trim();
   const decision = (document.getElementById('decision').value || '').trim();
 
-  if (!situation && !decision && !imageBase64) {
-    alert('Please describe your situation or question.');
+  if (!situation || !decision) {
+    alert('Please fill in both your situation and your decision.');
     return;
   }
 
@@ -1261,6 +1267,14 @@ async function analyze() {
       options.push({ letter: letters[idx] || String.fromCharCode(65+idx), text: inp.value.trim() });
     }
   });
+
+  // Force minimum 2 options
+  if (options.length < 2) {
+    document.getElementById('optionWarning').style.display = 'block';
+    setTimeout(() => document.getElementById('optionWarning').style.display = 'none', 4000);
+    return;
+  }
+  document.getElementById('optionWarning').style.display = 'none';
 
   // Block check
   const allText = (situation + ' ' + decision + ' ' + options.map(o=>o.text).join(' ')).toLowerCase();
@@ -1294,7 +1308,6 @@ async function analyze() {
   }, 800);
 
   const langInstruction = t('respondIn');
-  const hasOptions = options.length >= 2;
 
   let prompt;
   if (hasOptions) {
@@ -1429,16 +1442,19 @@ JSON:
       } else {
         const cards = (parsed.options||[]).map(opt => {
           const isBest = opt.letter === parsed.recommendation_letter;
-          return `<div class="opt-card ${isBest?'best':''}">
+          const scoreColor = opt.score >= 70 ? '#00e5a0' : opt.score >= 40 ? '#f59e0b' : '#ff7a94';
+          return `<div class="opt-card ${isBest?'best':''}" style="transition:all 0.3s;">
             <div class="opt-card-title">
-              <span style="width:20px;height:20px;border-radius:6px;background:${isBest?'rgba(74,127,255,0.2)':'rgba(255,255,255,0.06)'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:${isBest?'#7ab0ff':'var(--text-muted)'};">${opt.letter}</span>
+              <span style="width:22px;height:22px;border-radius:7px;background:${isBest?'rgba(74,127,255,0.2)':'rgba(255,255,255,0.06)'};display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:${isBest?'#7ab0ff':'var(--text-muted)'};">${opt.letter}</span>
               ${opt.name}
+              ${isBest ? '<span style="margin-left:auto;font-size:9px;color:#00e5a0;letter-spacing:0.08em;">✓ ORACLE PICKS THIS</span>' : ''}
             </div>
             <div class="opt-card-body">${opt.analysis||''}</div>
             <div class="pros-cons"><div class="pro">+ ${opt.pros||''}</div><div class="con">− ${opt.cons||''}</div></div>
+            ${!isBest && opt.consequence ? `<div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(255,74,107,0.06);border:1px solid rgba(255,74,107,0.12);font-size:11px;color:rgba(255,150,150,0.7);line-height:1.5;"><span style="opacity:0.5;margin-right:4px;">⚠ If you pick this:</span>${opt.consequence}</div>` : ''}
             <div class="score-wrap">
-              <div class="score-labels"><span>${t('predictedSuccess')}</span><span>${opt.score||0}%</span></div>
-              <div class="score-track"><div class="score-fill" style="width:${opt.score||0}%"></div></div>
+              <div class="score-labels"><span>Success probability</span><span style="color:${scoreColor};font-weight:500;">${opt.score||0}%</span></div>
+              <div class="score-track"><div class="score-fill" id="fill_${opt.letter}" style="width:0%;background:linear-gradient(90deg,${scoreColor}88,${scoreColor});transition:width 1s ease ${isBest?'0.2':'0.5'}s;"></div></div>
             </div>
           </div>`;
         }).join('');
@@ -1453,6 +1469,13 @@ JSON:
           <div><div class="section-title">${t('optionAnalysis')}</div>${cards}</div>
           <div><div class="section-title">${t('whyWins')}</div><div class="body-text">${parsed.reasoning||''}</div></div>
           <div><div class="section-title">${t('intSources')}</div><div>${chips}</div></div>`;
+        // Animate score bars
+        setTimeout(() => {
+          (parsed.options||[]).forEach(opt => {
+            const fill = document.getElementById('fill_' + opt.letter);
+            if (fill) fill.style.width = (opt.score||0) + '%';
+          });
+        }, 100);
       }
     }
   } catch(err) {
