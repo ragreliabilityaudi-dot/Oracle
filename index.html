@@ -480,6 +480,81 @@
   .rule-allowed { border-color:rgba(0,229,160,0.15) !important; background:rgba(0,229,160,0.04) !important; }
   .rule-check { width:18px; height:18px; border-radius:50%; background:rgba(0,229,160,0.15); border:1px solid rgba(0,229,160,0.3); display:flex; align-items:center; justify-content:center; font-size:9px; color:#00e5a0; flex-shrink:0; margin-top:2px; }
   .rules-disclaimer { font-size:11px; color:var(--text-muted); line-height:1.7; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02); }
+
+  /* VERDICT HERO */
+  .verdict-hero {
+    padding: 28px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: linear-gradient(135deg, rgba(74,127,255,0.06), rgba(0,212,255,0.03));
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict-hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(74,127,255,0.4), transparent);
+  }
+  .verdict-eyebrow { font-size:10px; color:var(--accent-blue); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:8px; opacity:0.7; }
+  .verdict-winner { font-family:'Cormorant Garamond',serif; font-size:42px; font-weight:300; color:#00e5a0; line-height:1.1; margin-bottom:8px; }
+  .verdict-reasoning { font-size:13px; color:var(--text-secondary); line-height:1.7; max-width:600px; }
+
+  /* VS GRID */
+  .vs-grid { display:grid; gap:12px; padding:24px 32px; }
+  .vs-grid.two-col { grid-template-columns:1fr auto 1fr; align-items:start; }
+  .vs-grid.multi-col { grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+  .vs-divider {
+    display:flex; align-items:center; justify-content:center; padding-top:32px;
+    font-family:'Cormorant Garamond',serif; font-size:18px; color:var(--text-muted);
+    font-weight:300; letter-spacing:0.05em;
+  }
+  .vs-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 var(--glass-shine) inset;
+  }
+  .vs-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-border-bright), transparent);
+  }
+  .vs-card.winner {
+    border-color: rgba(0,229,160,0.35);
+    background: rgba(0,229,160,0.06);
+    box-shadow: 0 4px 24px rgba(0,229,160,0.12), 0 1px 0 rgba(0,229,160,0.2) inset;
+  }
+  .vs-card.loser { opacity: 0.75; }
+  .vs-card-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .vs-letter {
+    width:28px; height:28px; border-radius:8px; display:flex; align-items:center;
+    justify-content:center; font-size:12px; font-weight:600; flex-shrink:0;
+  }
+  .vs-letter.win { background:rgba(0,229,160,0.2); color:#00e5a0; border:1px solid rgba(0,229,160,0.3); }
+  .vs-letter.lose { background:rgba(255,255,255,0.06); color:var(--text-muted); border:1px solid rgba(255,255,255,0.08); }
+  .vs-name { font-size:14px; font-weight:500; color:var(--text-primary); }
+  .vs-win-tag { margin-left:auto; font-size:9px; color:#00e5a0; letter-spacing:0.1em; background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); padding:3px 8px; border-radius:6px; }
+
+  /* CIRCULAR GAUGE */
+  .gauge-wrap { display:flex; align-items:center; gap:14px; margin:12px 0; }
+  .gauge-svg { flex-shrink:0; }
+  .gauge-info { }
+  .gauge-score { font-size:22px; font-weight:500; line-height:1; margin-bottom:3px; }
+  .gauge-label { font-size:10px; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; }
+  .vs-analysis { font-size:12px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px; }
+  .vs-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+  .vs-pro { font-size:10px; color:rgba(0,229,160,0.7); background:rgba(0,229,160,0.06); border:1px solid rgba(0,229,160,0.15); padding:3px 8px; border-radius:6px; }
+  .vs-con { font-size:10px; color:rgba(255,74,107,0.7); background:rgba(255,74,107,0.06); border:1px solid rgba(255,74,107,0.15); padding:3px 8px; border-radius:6px; }
+  .vs-consequence { margin-top:10px; padding:8px 12px; border-radius:8px; background:rgba(255,74,107,0.06); border:1px solid rgba(255,74,107,0.12); font-size:11px; color:rgba(255,150,150,0.8); line-height:1.5; }
+  .vs-consequence-label { font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,74,107,0.5); margin-bottom:4px; }
+
+  /* SECTIONS */
+  .result-section { padding:20px 32px; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .result-section:last-child { border-bottom:none; }
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
   .fadein { animation:fi 0.4s ease forwards; }
@@ -1420,42 +1495,91 @@ JSON:
           <div><div class="section-title">Why</div><div class="body-text">${parsed.no_good_answer_reason||''}</div></div>
           <div><div class="section-title">Correct Answer / Suggestion</div><div class="body-text">${parsed.reasoning||''}</div></div>`;
       } else {
-        const cards = (parsed.options||[]).map(opt => {
-          const isBest = opt.letter === parsed.recommendation_letter;
-          const scoreColor = opt.score >= 70 ? '#00e5a0' : opt.score >= 40 ? '#f59e0b' : '#ff7a94';
-          return `<div class="opt-card ${isBest?'best':''}" style="transition:all 0.3s;">
-            <div class="opt-card-title">
-              <span style="width:22px;height:22px;border-radius:7px;background:${isBest?'rgba(74,127,255,0.2)':'rgba(255,255,255,0.06)'};display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:${isBest?'#7ab0ff':'var(--text-muted)'};">${opt.letter}</span>
-              ${opt.name}
-              ${isBest ? '<span style="margin-left:auto;font-size:9px;color:#00e5a0;letter-spacing:0.08em;">✓ ORACLE PICKS THIS</span>' : ''}
-            </div>
-            <div class="opt-card-body">${opt.analysis||''}</div>
-            <div class="pros-cons"><div class="pro">+ ${opt.pros||''}</div><div class="con">− ${opt.cons||''}</div></div>
-            ${!isBest && opt.consequence ? `<div style="margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(255,74,107,0.06);border:1px solid rgba(255,74,107,0.12);font-size:11px;color:rgba(255,150,150,0.7);line-height:1.5;"><span style="opacity:0.5;margin-right:4px;">⚠ If you pick this:</span>${opt.consequence}</div>` : ''}
-            <div class="score-wrap">
-              <div class="score-labels"><span>Success probability</span><span style="color:${scoreColor};font-weight:500;">${opt.score||0}%</span></div>
-              <div class="score-track"><div class="score-fill" id="fill_${opt.letter}" style="width:0%;background:linear-gradient(90deg,${scoreColor}88,${scoreColor});transition:width 1s ease ${isBest?'0.2':'0.5'}s;"></div></div>
-            </div>
-          </div>`;
-        }).join('');
+        function makeGauge(score, color, id) {
+          const r = 28; const circ = 2 * Math.PI * r;
+          const dash = (score/100) * circ;
+          return `<svg class="gauge-svg" width="70" height="70" viewBox="0 0 70 70">
+            <circle cx="35" cy="35" r="${r}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="6"/>
+            <circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="6"
+              stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
+              stroke-linecap="round" transform="rotate(-90 35 35)"
+              id="gauge_${id}" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.25,0.46,0.45,0.94)"/>
+            <text x="35" y="35" text-anchor="middle" dominant-baseline="central"
+              fill="${color}" font-size="14" font-weight="500" font-family="DM Sans">${score}%</text>
+          </svg>`;
+        }
+
+        const opts = parsed.options || [];
+        const winLetter = parsed.recommendation_letter;
         const chips = (parsed.sources||[]).map(s=>`<span class="chip">${s}</span>`).join('');
+        const isTwoOpt = opts.length === 2;
+
+        // Build VS cards
+        const vsCards = opts.map((opt, i) => {
+          const isWin = opt.letter === winLetter;
+          const sc = opt.score || 0;
+          const color = sc >= 70 ? '#00e5a0' : sc >= 40 ? '#f59e0b' : '#ff7a94';
+          return `<div class="vs-card ${isWin?'winner':'loser'}">
+            <div class="vs-card-header">
+              <div class="vs-letter ${isWin?'win':'lose'}">${opt.letter}</div>
+              <div class="vs-name">${opt.name}</div>
+              ${isWin ? '<div class="vs-win-tag">✓ ORACLE PICKS</div>' : ''}
+            </div>
+            <div class="gauge-wrap">
+              ${makeGauge(sc, color, opt.letter)}
+              <div class="gauge-info">
+                <div class="gauge-score" style="color:${color};">${sc}%</div>
+                <div class="gauge-label">Success Rate</div>
+              </div>
+            </div>
+            <div class="vs-analysis">${opt.analysis||''}</div>
+            <div class="vs-tags">
+              <span class="vs-pro">+ ${opt.pros||''}</span>
+              <span class="vs-con">− ${opt.cons||''}</span>
+            </div>
+            ${!isWin && opt.consequence ? `<div class="vs-consequence"><div class="vs-consequence-label">If you pick this instead</div>${opt.consequence}</div>` : ''}
+          </div>`;
+        });
+
+        // Insert VS divider for 2 options
+        let vsGrid = '';
+        if (isTwoOpt) {
+          vsGrid = `<div class="vs-grid two-col">${vsCards[0]}<div class="vs-divider">VS</div>${vsCards[1]}</div>`;
+        } else {
+          vsGrid = `<div class="vs-grid multi-col">${vsCards.join('')}</div>`;
+        }
+
         rw.innerHTML = `
-          <div class="result-header">
-            <div style="flex:1;"><div class="rec-label">${t('recommendation')}</div><div class="rec-name">${parsed.recommendation||''}</div></div>
-            <div class="best-badge">${t('bestPath')}</div>
+          <div class="verdict-hero fadein">
+            <div class="verdict-eyebrow">Oracle Verdict</div>
+            <div class="verdict-winner">${parsed.recommendation||''}</div>
+            <div class="verdict-reasoning">${parsed.reasoning||''}</div>
           </div>
-          <div><div class="section-title">${t('decisionContext')}</div><div class="body-text">${parsed.summary||''}</div></div>
-          <div><div class="section-title">${t('similarCases')}</div><div class="body-text">${parsed.similar_cases||''}</div></div>
-          <div><div class="section-title">${t('optionAnalysis')}</div>${cards}</div>
-          <div><div class="section-title">${t('whyWins')}</div><div class="body-text">${parsed.reasoning||''}</div></div>
-          <div><div class="section-title">${t('intSources')}</div><div>${chips}</div></div>`;
-        // Animate score bars
+          ${vsGrid}
+          <div class="result-section">
+            <div class="section-title">${t('decisionContext')}</div>
+            <div class="body-text">${parsed.summary||''}</div>
+          </div>
+          <div class="result-section">
+            <div class="section-title">${t('similarCases')}</div>
+            <div class="body-text">${parsed.similar_cases||''}</div>
+          </div>
+          <div class="result-section">
+            <div class="section-title">${t('intSources')}</div>
+            <div>${chips}</div>
+          </div>`;
+
+        // Animate circular gauges
         setTimeout(() => {
-          (parsed.options||[]).forEach(opt => {
-            const fill = document.getElementById('fill_' + opt.letter);
-            if (fill) fill.style.width = (opt.score||0) + '%';
+          opts.forEach(opt => {
+            const circle = document.getElementById('gauge_' + opt.letter);
+            if (circle) {
+              const r = 28; const circ = 2 * Math.PI * r;
+              const dash = ((opt.score||0)/100) * circ;
+              circle.style.strokeDashoffset = circ - dash;
+            }
           });
-        }, 100);
+        }, 150);
       }
     }
   } catch(err) {
