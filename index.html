@@ -813,6 +813,9 @@
           <div class="opt-row" id="optRow0"><div class="opt-letter">A</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option A"><button class="remove-opt" onclick="removeOption(0)" style="display:none;">✕</button></div>
           <div class="opt-row" id="optRow1"><div class="opt-letter">B</div><input type="text" class="crystal-input opt-input" style="height:38px;" placeholder="Option B"><button class="remove-opt" onclick="removeOption(1)" style="display:none;">✕</button></div>
         </div>
+        <div id="optionWarning" style="display:none;margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(255,74,107,0.08);border:1px solid rgba(255,74,107,0.2);font-size:11px;color:#ff8fa3;">
+          ⚠ Oracle needs at least 2 options to compare.
+        </div>
       </div>
 
       <div style="margin-top:auto;padding-top:16px;">
@@ -1270,11 +1273,13 @@ async function analyze() {
 
   // Force minimum 2 options
   if (options.length < 2) {
-    document.getElementById('optionWarning').style.display = 'block';
-    setTimeout(() => document.getElementById('optionWarning').style.display = 'none', 4000);
+    const warn = document.getElementById('optionWarning');
+    if (warn) { warn.style.display = 'block'; setTimeout(() => warn.style.display = 'none', 4000); }
+    else alert('Please add at least 2 options for Oracle to compare.');
     return;
   }
-  document.getElementById('optionWarning').style.display = 'none';
+  const warn = document.getElementById('optionWarning');
+  if (warn) warn.style.display = 'none';
 
   // Block check
   const allText = (situation + ' ' + decision + ' ' + options.map(o=>o.text).join(' ')).toLowerCase();
