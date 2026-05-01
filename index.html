@@ -1309,10 +1309,8 @@ async function analyze() {
 
   const langInstruction = t('respondIn');
 
-  let prompt;
-  if (hasOptions) {
-    const optText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
-    prompt = `You are Oracle. ${langInstruction}
+  const optText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
+  const prompt = `You are Oracle, a world-class decision intelligence system. ${langInstruction}
 Analyze this decision. Respond ONLY in valid JSON, no markdown, no backticks.
 
 Situation: ${situation}
@@ -1321,47 +1319,24 @@ Options:
 ${optText}
 
 Rules:
-- Score each option 0-100 based on real-world outcomes
-- If none of the options are good answers, set "no_good_answer" to true and explain why
-- ALL response text must be in the language specified: ${langInstruction}
+- Score each option 0-100 based on real-world evidence and outcomes
+- For each NON-recommended option write a "consequence" — what typically happens when people choose this path
+- If none of the options are viable set "no_good_answer" to true
+- ALL text must be in the language: ${langInstruction}
 
-JSON format:
+JSON:
 {
   "type": "decision",
   "no_good_answer": false,
   "no_good_answer_reason": "",
-  "summary": "2-3 sentence overview",
-  "similar_cases": "2-3 real analogous cases and outcomes",
-  "options": [${options.map(o => `{"letter":"${o.letter}","name":"${o.text}","score":70,"analysis":"analysis","pros":"advantage","cons":"risk"}`).join(',')}],
-  "recommendation": "best option name or none",
+  "summary": "2-3 sentence overview of this decision landscape",
+  "similar_cases": "2-3 real-world analogous situations and what happened",
+  "options": [${options.map(o => `{"letter":"${o.letter}","name":"${o.text}","score":70,"analysis":"2-3 sentence analysis","pros":"main advantage","cons":"main risk","consequence":"what typically happens if someone picks this non-optimal choice"}`).join(',')}],
+  "recommendation": "exact option name",
   "recommendation_letter": "${options[0]?.letter || 'A'}",
-  "reasoning": "why this wins or why none work",
-  "sources": ["source1","source2"]
+  "reasoning": "2-3 sentences why this option wins with evidence",
+  "sources": ["source1","source2","source3"]
 }`;
-  } else {
-    prompt = `You are Oracle. ${langInstruction}
-Answer this question directly. Respond ONLY in valid JSON, no markdown, no backticks.
-${imageBase64 ? 'An image has been attached — analyze it carefully as part of the answer.' : ''}
-
-Question: ${situation}
-${decision ? 'Specifically: ' + decision : ''}
-
-Rules:
-- Give a clear direct answer
-- If the question has no correct answer or is unanswerable, set "no_answer" to true
-- ALL response text must be in the language specified: ${langInstruction}
-
-JSON:
-{
-  "type": "direct",
-  "no_answer": false,
-  "no_answer_reason": "",
-  "answer": "clear direct answer",
-  "explanation": "step by step reasoning",
-  "confidence": "high",
-  "sources": ["source type"]
-}`;
-  }
 
   try {
     let raw = '';
