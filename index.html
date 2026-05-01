@@ -1390,33 +1390,23 @@ async function analyze() {
   const langInstruction = t('respondIn');
 
   const optText = options.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
-  const prompt = `You are Oracle, a world-class decision intelligence system. ${langInstruction}
-Analyze this decision. Respond ONLY in valid JSON, no markdown, no backticks.
+  const prompt = `You are Oracle — a brutally honest, evidence-driven decision system used by founders and executives. ${langInstruction}
 
 Situation: ${situation}
 Decision: ${decision}
 Options:
 ${optText}
 
-Rules:
-- Score each option 0-100 based on real-world evidence and outcomes
-- For each NON-recommended option write a "consequence" — what typically happens when people choose this path
-- If none of the options are viable set "no_good_answer" to true
-- ALL text must be in the language: ${langInstruction}
+Instructions:
+- Think like a strategist who has seen hundreds of these decisions play out
+- Give DIFFERENTIATED scores — winner should be clearly ahead, use full 0-100 range
+- Be specific — name real companies, studies, or outcomes. No generic advice
+- For losing options: describe the exact failure mode
+- Pick one winner decisively
 
-JSON:
-{
-  "type": "decision",
-  "no_good_answer": false,
-  "no_good_answer_reason": "",
-  "summary": "2-3 sentence overview of this decision landscape",
-  "similar_cases": "2-3 real-world analogous situations and what happened",
-  "options": [${options.map(o => `{"letter":"${o.letter}","name":"${o.text}","score":70,"analysis":"2-3 sentence analysis","pros":"main advantage","cons":"main risk","consequence":"what typically happens if someone picks this non-optimal choice"}`).join(',')}],
-  "recommendation": "exact option name",
-  "recommendation_letter": "${options[0]?.letter || 'A'}",
-  "reasoning": "2-3 sentences why this option wins with evidence",
-  "sources": ["source1","source2","source3"]
-}`;
+Respond ONLY in valid JSON. No markdown, no backticks. Language: ${langInstruction}
+
+{"type":"decision","no_good_answer":false,"no_good_answer_reason":"","summary":"2-3 sharp sentences about what is actually at stake in this decision","similar_cases":"Name 2-3 specific real companies or people who faced this exact decision and what happened","options":[${options.map(o => '{"letter":"' + o.letter + '","name":"' + o.text + '","score":0,"analysis":"Specific evidence-backed analysis with real examples","pros":"Most compelling advantage with specifics","cons":"Biggest risk with specifics","consequence":"Exactly what failure looks like if someone picks this — be specific"}').join(',')}],"recommendation":"exact option name","recommendation_letter":"${options[0]?.letter || 'A'}","reasoning":"2-3 decisive sentences why this wins. Reference evidence. Be direct.","sources":["specific source 1","specific source 2","specific source 3"]}`;
 
   try {
     let raw = '';
