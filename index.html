@@ -1501,16 +1501,14 @@ async function sendMessage() {
 
     const thinking = addOracleMsg('', true);
     await sleep(800);
-    thinking.querySelector('.msg-bubble').innerHTML = `Got it. Now — what are your options? What paths are you considering?`;
-    convState = 'got_situation';
+    thinking.querySelector('.msg-bubble').innerHTML = `Got it. What are your options? Add at least 2 paths you're weighing.`;
     addOptionPicker();
+
   } else if (convState === 'got_situation') {
-    // Extra context added
-    convSituation += ' ' + text;
+    // User typed something instead of using the picker — just remind them
     const thinking = addOracleMsg('', true);
-    await sleep(600);
-    thinking.querySelector('.msg-bubble').innerHTML = `Noted. Add your options below and Oracle will analyze.`;
-    if (!document.getElementById('optionPickerMsg')) addOptionPicker();
+    await sleep(400);
+    thinking.querySelector('.msg-bubble').innerHTML = `Use the option fields above to add your choices, then hit Analyze.`;
   }
 
   btn.disabled = false;
