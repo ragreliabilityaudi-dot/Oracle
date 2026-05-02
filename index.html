@@ -574,7 +574,7 @@
 
   /* CHAT AREA */
   .chat-area { display:flex; flex-direction:column; overflow:hidden; position:relative; }
-  .chat-messages { flex:1; overflow-y:auto; padding:32px 40px; display:flex; flex-direction:column; gap:16px; justify-content:flex-end; }
+  .chat-messages { flex:1; overflow-y:auto; padding:32px 40px; display:flex; flex-direction:column; gap:16px; }
   
   /* INTRO */
   .oracle-intro { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px 40px; gap:16px; }
@@ -950,7 +950,7 @@
 
     <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
-      <div class="chat-messages" id="chatMessages">
+      <div class="chat-messages" id="chatMessages"><div style="flex:1;min-height:20px;"></div>
         <div class="oracle-intro">
           <div class="intro-gem">
             <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
@@ -1395,7 +1395,7 @@ function addOracleMsg(html, typing=false) {
   }
   div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
   msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 10);
   return div;
 }
 
@@ -1407,7 +1407,7 @@ function addUserMsg(text) {
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
   msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 10);
 }
 
 function addOptionPicker() {
