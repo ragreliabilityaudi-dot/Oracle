@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.CALLBACK_URL || 'https://oracle-production-bee1.up.railway.app/auth/google/callback'
+  callbackURL: 'https://oracle-production-bee1.up.railway.app/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
   return done(null, profile);
 }));
@@ -28,7 +28,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Auth routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/auth/google/callback',
@@ -40,30 +39,22 @@ app.get('/auth/logout', (req, res) => {
   req.logout(() => res.redirect('/'));
 });
 
-app.get('/auth/user', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ name: req.user.displayName, email: req.user.emails?.[0]?.value, photo: req.user.photos?.[0]?.value });
-  } else {
-    res.json(null);
-  }
-});
+function serveHtml(req, res, user) {
+  let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+  html = html.replace('const GROQ_KEY = window.GROQ_KEY;', `const GROQ_KEY = "${process.env.GROQ_KEY || ''}";`);
+  html = html.replace('const GOOGLE_USER = window.GOOGLE_USER;', `const GOOGLE_USER = ${JSON.stringify(user)};`);
+  res.send(html);
+}
 
-// Serve app (protected)
 app.get('/app', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/');
-  let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-  html = html.replace('const GROQ_KEY = window.GROQ_KEY;', `const GROQ_KEY = "${process.env.GROQ_KEY || ''}";`);
-  html = html.replace('const GOOGLE_USER = window.GOOGLE_USER;', `const GOOGLE_USER = ${JSON.stringify({ name: req.user.displayName, email: req.user.emails?.[0]?.value, photo: req.user.photos?.[0]?.value })};`);
-  res.send(html);
+  const user = { name: req.user.displayName, email: req.user.emails?.[0]?.value, photo: req.user.photos?.[0]?.value };
+  serveHtml(req, res, user);
 });
 
-// Login page
 app.get('/', (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/app');
-  let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-  html = html.replace('const GROQ_KEY = window.GROQ_KEY;', `const GROQ_KEY = "${process.env.GROQ_KEY || ''}";`);
-  html = html.replace('const GOOGLE_USER = window.GOOGLE_USER;', `const GOOGLE_USER = null;`);
-  res.send(html);
+  serveHtml(req, res, null);
 });
 
 app.use(express.static(__dirname));
