@@ -571,12 +571,11 @@
     padding:16px 32px 8px;
     display:flex;
     flex-direction:column;
-    justify-content:flex-end;
     gap:10px;
     min-height:0;
   }
   .chat-messages > * { flex-shrink:0; }
-  .chat-spacer { display:none; }
+  .chat-spacer { flex:1; }
   
   /* INTRO */
   .oracle-intro { 
@@ -977,7 +976,7 @@
 
     <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
-      <div class="chat-messages" id="chatMessages"><div class="chat-spacer" id="chatSpacer"></div><div class="chat-spacer"></div>
+      <div class="chat-messages" id="chatMessages"><div class="chat-spacer" id="chatSpacer"></div>
 
       </div>
 
