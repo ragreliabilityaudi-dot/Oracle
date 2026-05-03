@@ -572,8 +572,10 @@
   .chat-area { display:flex; flex-direction:column; overflow:hidden; position:relative; }
   .chat-messages { 
     flex:1; overflow-y:auto; padding:16px 32px 8px;
-    display:flex; flex-direction:column-reverse; gap:12px;
+    display:flex; flex-direction:column; gap:12px;
+    overflow-anchor:none;
   }
+  .chat-anchor { overflow-anchor:auto; height:1px; flex-shrink:0; }
   .chat-spacer { display:none; }
   
   /* INTRO */
@@ -628,28 +630,27 @@
 
   /* VERDICT PANEL */
 
-  /* VERDICT PANEL - SLIDES FROM RIGHT */
+  /* VERDICT PANEL */
   .verdict-panel {
-    position:fixed;
-    top:65px; right:0; bottom:0;
-    width:480px;
-    z-index:9999;
-    background:rgba(6,10,22,0.99);
-    border-left:1px solid rgba(74,127,255,0.25);
-    backdrop-filter:blur(40px);
-    -webkit-backdrop-filter:blur(40px);
-    display:flex;
+    position:fixed !important;
+    top:65px !important; right:0 !important; bottom:0 !important;
+    width:480px !important;
+    z-index:99999 !important;
+    background:#060a16 !important;
+    border-left:1px solid rgba(74,127,255,0.25) !important;
+    display:none;
     flex-direction:column;
     transform:translateX(100%);
     transition:transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-    box-shadow:-12px 0 48px rgba(0,0,0,0.6);
+    box-shadow:-16px 0 48px rgba(0,0,0,0.8) !important;
+    overflow:hidden !important;
   }
-  .verdict-panel.open { transform:translateX(0); }
-  .verdict-modal { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+  .verdict-panel.open { transform:translateX(0) !important; display:flex !important; }
+  .verdict-modal { display:flex; flex-direction:column; flex:1; overflow:hidden; width:100%; }
   .verdict-panel-inner { display:flex; flex-direction:column; overflow-y:auto; flex:1; }
-  .verdict-panel-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+  .verdict-panel-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; background:rgba(8,14,32,0.95); }
   .verdict-panel-title { font-size:11px; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; }
-  .verdict-close-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); width:28px; height:28px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; transition:all 0.2s; }
+  .verdict-close-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text-secondary); width:28px; height:28px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; transition:all 0.2s; }
   .verdict-close-btn:hover { background:rgba(255,74,107,0.2); border-color:rgba(255,74,107,0.4); color:#ff8fa3; }
 
   ::-webkit-scrollbar { width:4px; }
@@ -968,7 +969,7 @@
 
     <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
-      <div class="chat-messages" id="chatMessages"><div class="chat-spacer"></div>
+      <div class="chat-messages" id="chatMessages"><div class="chat-spacer"></div><div class="chat-anchor"></div>
         <div class="oracle-intro">
           <div class="intro-gem">
             <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
@@ -1411,7 +1412,10 @@ function addOracleMsg(html, typing=false) {
     return div;
   }
   div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
-  msgs.prepend(div);
+  // Insert before anchor
+  const anchor = msgs.querySelector('.chat-anchor') || msgs;
+  msgs.insertBefore(div, anchor);
+  anchor.scrollIntoView({behavior:'smooth', block:'end'});
   return div;
 }
 
@@ -1422,7 +1426,9 @@ function addUserMsg(text) {
   const div = document.createElement('div');
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
-  msgs.prepend(div);
+  const anchor = msgs.querySelector('.chat-anchor') || msgs;
+  msgs.insertBefore(div, anchor);
+  anchor.scrollIntoView({behavior:'smooth', block:'end'});
 }
 
 function addOptionPicker() {
@@ -1448,7 +1454,9 @@ function addOptionPicker() {
       <button class="add-option-btn" style="width:100%;margin-top:8px;" onclick="addOptionRow()">+ Add another option</button>
       <button class="submit-options-btn" onclick="submitOptions()">Analyze with Oracle →</button>
     </div>`;
-  msgs.prepend(div);
+  const anchor2 = msgs.querySelector('.chat-anchor') || msgs;
+  msgs.insertBefore(div, anchor2);
+  anchor2.scrollIntoView({behavior:'smooth', block:'end'});
   setTimeout(() => document.getElementById('optIn_0')?.focus(), 100);
 }
 
