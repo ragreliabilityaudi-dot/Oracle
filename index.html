@@ -567,10 +567,10 @@
   .chat-area { display:flex; flex-direction:column; overflow:hidden; position:relative; height:100%; }
   .chat-messages { 
     flex:1;
-    overflow-y:auto;
+    overflow-y:scroll;
     padding:16px 32px 8px;
     display:flex;
-    flex-direction:column-reverse;
+    flex-direction:column;
     gap:10px;
     min-height:0;
   }
@@ -1421,7 +1421,8 @@ function addOracleMsg(html, typing=false) {
     return div;
   }
   div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
-  msgs.prepend(div);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
   return div;
 }
 
@@ -1432,7 +1433,8 @@ function addUserMsg(text) {
   const div = document.createElement('div');
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
-  msgs.prepend(div);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 function addOptionPicker() {
@@ -1458,7 +1460,8 @@ function addOptionPicker() {
       <button class="add-option-btn" style="width:100%;margin-top:8px;" onclick="addOptionRow()">+ Add another option</button>
       <button class="submit-options-btn" onclick="submitOptions()">Analyze with Oracle →</button>
     </div>`;
-  msgs.prepend(div);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
   setTimeout(() => document.getElementById('optIn_0')?.focus(), 100);
 }
 
