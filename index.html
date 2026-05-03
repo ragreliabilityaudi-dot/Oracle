@@ -483,11 +483,9 @@
 
   /* VERDICT HERO */
   .verdict-hero {
-    padding: 16px 20px;
+    padding: 20px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
     background: linear-gradient(135deg, rgba(74,127,255,0.07), rgba(0,212,255,0.03));
-    position: relative; overflow: hidden;
-    display: flex; flex-direction: column; gap: 6px;
     flex-shrink: 0;
   }
   .verdict-hero::before {
@@ -500,20 +498,17 @@
   .verdict-reasoning { font-size:12px; color:var(--text-secondary); line-height:1.6; }
 
   /* VS GRID */
-  .vs-grid { display:grid; gap:12px; padding:16px 20px; overflow-y:auto; flex:1; }
+  .vs-grid { padding:16px 20px; overflow-y:visible; }
   .vs-grid.two-col { grid-template-columns:1fr; align-items:start; }
   .vs-grid.multi-col { grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
   .vs-divider { display:none; }
   .vs-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(20px);
-    border-radius: 18px;
-    padding: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 16px;
     position: relative;
-    overflow: hidden;
-    transition: all 0.3s;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 var(--glass-shine) inset;
+    margin-bottom: 12px;
   }
   .vs-card::before {
     content: '';
@@ -576,11 +571,10 @@
     padding:16px 32px;
     display:flex;
     flex-direction:column;
-    justify-content:flex-start;
     gap:12px;
     min-height:0;
   }
-  .chat-spacer { flex:1; min-height:20px; }
+  .chat-spacer { flex:1; }
   
   /* INTRO */
   .oracle-intro { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 20px; gap:16px; min-height:400px; }
