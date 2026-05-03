@@ -13,7 +13,6 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: 'https://oracle-production-bee1.up.railway.app/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
-  console.log('Google auth success:', profile.displayName);
   return done(null, profile);
 }));
 
@@ -23,8 +22,7 @@ passport.deserializeUser((user, done) => done(null, user));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'oracle-secret-key',
   resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+  saveUninitialized: false
 }));
 
 app.use(passport.initialize());
@@ -32,26 +30,10 @@ app.use(passport.session());
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-app.get('/auth/google/callback', (req, res, next) => {
-  passport.authenticate('google', (err, user, info) => {
-    if (err) {
-      console.error('OAuth error:', err);
-      return res.redirect('/?error=oauth');
-    }
-    if (!user) {
-      console.error('No user returned:', info);
-      return res.redirect('/?error=nouser');
-    }
-    req.logIn(user, (err) => {
-      if (err) {
-        console.error('Login error:', err);
-        return res.redirect('/?error=login');
-      }
-      console.log('Login successful, redirecting to /app');
-      return res.redirect('/app');
-    });
-  })(req, res, next);
-});
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => res.redirect('/app')
+);
 
 app.get('/auth/logout', (req, res) => {
   req.logout(() => res.redirect('/'));
