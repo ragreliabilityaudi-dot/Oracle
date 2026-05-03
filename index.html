@@ -568,16 +568,14 @@
   .chat-messages { 
     flex:1;
     overflow-y:auto;
-    padding:16px 32px;
+    padding:16px 32px 8px;
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap:10px;
     min-height:0;
-    justify-content:flex-end;
   }
-  /* When content overflows, flex-end stops working - this wrapper fixes it */
   .chat-messages > * { flex-shrink:0; }
-  .chat-spacer { display:none; }
+  .chat-spacer { flex:1; min-height:10px; }
   
   /* INTRO */
   .oracle-intro { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 20px; gap:16px; min-height:400px; }
@@ -970,7 +968,7 @@
 
     <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
-      <div class="chat-messages" id="chatMessages"><div class="chat-spacer"></div>
+      <div class="chat-messages" id="chatMessages"><div class="chat-spacer" id="chatSpacer"></div><div class="chat-spacer"></div>
         <div class="oracle-intro">
           <div class="intro-gem">
             <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
@@ -1513,10 +1511,11 @@ async function sendMessage() {
     const thinking = addOracleMsg('', true);
     await sleep(600);
 
-    // Detect if it's a direct factual question - broader detection
-    const directPatterns = /^(what is|what's|calculate|solve|how much|how many|when was|who is|who was|who were|define|what does|convert|how do|explain|why is|why does|what are|how does|tell me|is it|can you|\d+[+\-*/^%]|[+\-]?\d)/i;
-    const hasQuestionMark = text.trim().endsWith('?') && !text.toLowerCase().includes(' or ') && !text.toLowerCase().includes('should i') && !text.toLowerCase().includes('which one');
-    const isDirectQ = directPatterns.test(text.trim()) || hasQuestionMark;
+    // Simple rule: if it ends with ? and doesn't contain "or"/"should I"/"which" = direct
+    // Also direct if starts with question words or math
+    const decisionWords = /\bshould i\b|\bwhich (one|option|is better)\b|\bwhat should\b|\bdecide\b|\bchoose between\b/i;
+    const isDecision = decisionWords.test(text);
+    const isDirectQ = !isDecision; // everything that's not clearly a decision = answer directly
 
     if (isDirectQ) {
       thinking.querySelector('.msg-bubble').innerHTML = `Let me answer that directly.`;
