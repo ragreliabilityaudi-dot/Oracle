@@ -1412,10 +1412,10 @@ function addOracleMsg(html, typing=false) {
     return div;
   }
   div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
-  // Insert before anchor
-  const anchor = msgs.querySelector('.chat-anchor') || msgs;
-  msgs.insertBefore(div, anchor);
-  anchor.scrollIntoView({behavior:'smooth', block:'end'});
+  const anchor = msgs.querySelector('.chat-anchor');
+  if (anchor) msgs.insertBefore(div, anchor);
+  else msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
   return div;
 }
 
@@ -1426,9 +1426,10 @@ function addUserMsg(text) {
   const div = document.createElement('div');
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
-  const anchor = msgs.querySelector('.chat-anchor') || msgs;
-  msgs.insertBefore(div, anchor);
-  anchor.scrollIntoView({behavior:'smooth', block:'end'});
+  const anchor = msgs.querySelector('.chat-anchor');
+  if (anchor) msgs.insertBefore(div, anchor);
+  else msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 function addOptionPicker() {
@@ -1454,9 +1455,10 @@ function addOptionPicker() {
       <button class="add-option-btn" style="width:100%;margin-top:8px;" onclick="addOptionRow()">+ Add another option</button>
       <button class="submit-options-btn" onclick="submitOptions()">Analyze with Oracle →</button>
     </div>`;
-  const anchor2 = msgs.querySelector('.chat-anchor') || msgs;
-  msgs.insertBefore(div, anchor2);
-  anchor2.scrollIntoView({behavior:'smooth', block:'end'});
+  const anchor3 = msgs.querySelector('.chat-anchor');
+  if (anchor3) msgs.insertBefore(div, anchor3);
+  else msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
   setTimeout(() => document.getElementById('optIn_0')?.focus(), 100);
 }
 
