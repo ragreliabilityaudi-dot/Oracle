@@ -1731,8 +1731,8 @@ function buildVerdictHTML(parsed) {
 
 function closeVerdict() {
   const panel = document.getElementById('verdictPanel');
-  panel.classList.remove('open');
-  setTimeout(() => panel.style.display = 'none', 420);
+  panel.style.transform = 'translateX(100%)';
+  setTimeout(() => { panel.style.display = 'none'; }, 420);
 }
 
 function showVerdict(html) {
@@ -1740,7 +1740,7 @@ function showVerdict(html) {
   const inner = document.getElementById('verdictPanelInner');
   inner.innerHTML = html;
   panel.style.display = 'flex';
-  requestAnimationFrame(() => panel.classList.add('open'));
+  requestAnimationFrame(() => { panel.style.transform = 'translateX(0)'; });
 
   // Animate gauges
   setTimeout(() => {
@@ -1757,15 +1757,13 @@ renderHistory();
 applyLang();
 
 </script>
-<!-- VERDICT MODAL -->
-<div class="verdict-panel" id="verdictPanel" >
-  <div class="verdict-modal">
-    <div class="verdict-panel-header">
-      <div class="verdict-panel-title">Oracle Verdict</div>
-      <button class="verdict-close-btn" onclick="closeVerdict()">✕</button>
-    </div>
-    <div class="verdict-panel-inner" id="verdictPanelInner"></div>
+<!-- VERDICT PANEL -->
+<div id="verdictPanel" style="position:fixed;top:65px;right:0;bottom:0;width:480px;z-index:99999;background:#060a16;border-left:1px solid rgba(74,127,255,0.25);display:none;flex-direction:column;transform:translateX(100%);transition:transform 0.4s ease;box-shadow:-16px 0 48px rgba(0,0,0,0.8);overflow:hidden;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;background:rgba(8,14,32,0.95);">
+    <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;">Oracle Verdict</div>
+    <button onclick="closeVerdict()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;">✕</button>
   </div>
+  <div id="verdictPanelInner" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;"></div>
 </div>
 </body>
 </html>
