@@ -1051,11 +1051,6 @@ const T = {
     intSources:'Intelligence Sources', predictedSuccess:'Predicted success',
     blocked:'Request Blocked', blockedMsg:"This request violates Oracle's usage policy.",
     langName:'English', respondIn:'Respond entirely in English.',
-    letMeAnswer:'Let me answer that directly.',
-    gotItOptions:'Got it. What are your options? Add at least 2 paths you're weighing.',
-    wantDecision:'Want to make a decision? Describe your situation.',
-    wantAnother:'Want to explore another decision? Just describe your next situation.',
-    readyNext:'Ready for your next decision.',
     stat1:'Decision Accuracy', stat2:'Languages', stat3:'Use Cases',
     feat1title:'Instant Analysis', feat1body:'Get results in seconds, not hours. No consultants, no waiting.',
     feat2title:'Real-World Cases', feat2body:'Every recommendation is backed by thousands of similar real decisions and their outcomes.',
@@ -1450,7 +1445,7 @@ function addOptionPicker() {
   div.innerHTML = `
     <div class="msg-avatar oracle">O</div>
     <div class="msg-bubble oracle" style="min-width:320px;">
-      <div style="margin-bottom:12px;font-size:13px;">${t('gotItOptions')}</div>
+      <div style="margin-bottom:12px;font-size:13px;">What are your options? Add at least 2 paths you're considering.</div>
       <div class="option-picker" id="optionPicker">
         <div class="option-input-row">
           <div class="option-letter-badge">A</div>
@@ -1531,12 +1526,12 @@ async function sendMessage() {
     const isDirectQ = !isDecision; // everything that's not clearly a decision = answer directly
 
     if (isDirectQ) {
-      thinking.querySelector('.msg-bubble').innerHTML = t('letMeAnswer');
+      thinking.querySelector('.msg-bubble').innerHTML = `Let me answer that directly.`;
       convState = 'idle';
       await sleep(400);
       await answerDirectly(text);
     } else {
-      thinking.querySelector('.msg-bubble').innerHTML = t('gotItOptions');
+      thinking.querySelector('.msg-bubble').innerHTML = `Got it. What are your options? Add at least 2 paths you're weighing.`;
       addOptionPicker();
     }
 
@@ -1567,7 +1562,7 @@ async function answerDirectly(question) {
         max_tokens: 600,
         temperature: 0.2,
         messages: [
-          { role: 'system', content: `You are Oracle — a sharp, direct advisor who talks like a smart human, not a textbook. ${langInstruction} Keep it conversational and concise. No fluff. For math, show the working briefly. No JSON.` },
+          { role: 'system', content: `You are Oracle. Answer questions directly and clearly. ${langInstruction} Be concise. For math show the working. No JSON needed.` },
           { role: 'user', content: question }
         ]
       })
@@ -1580,7 +1575,7 @@ async function answerDirectly(question) {
   }
 
   setTimeout(() => {
-    addOracleMsg(t('wantDecision'));
+    addOracleMsg(`Want to make a decision? Describe your situation.`);
   }, 600);
 }
 
@@ -1622,7 +1617,7 @@ Respond ONLY in valid JSON, no markdown, no backticks. Language: ${langInstructi
         max_tokens: 1600,
         temperature: 0.3,
         messages: [
-          { role: 'system', content: `You are Oracle — brutally honest, sharp, talks like a human advisor not a robot. Respond with valid JSON only. No markdown. ${langInstruction}` },
+          { role: 'system', content: `You are Oracle. Respond with valid JSON only. No markdown. ${langInstruction}` },
           { role: 'user', content: prompt }
         ]
       })
@@ -1659,7 +1654,7 @@ Respond ONLY in valid JSON, no markdown, no backticks. Language: ${langInstructi
 
     // Add follow-up prompt
     setTimeout(() => {
-      addOracleMsg(t('wantAnother'));
+      addOracleMsg(currentLang === 'en' ? 'Want to explore another decision? Just describe your next situation.' : 'Ready for your next decision.');
     }, 800);
 
   } catch(err) {
