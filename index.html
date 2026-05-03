@@ -571,11 +571,10 @@
   /* CHAT AREA */
   .chat-area { display:flex; flex-direction:column; overflow:hidden; position:relative; }
   .chat-messages { 
-    flex:1; overflow-y:auto; padding:32px 40px; 
-    display:flex; flex-direction:column; gap:16px;
-    scroll-behavior:smooth;
+    flex:1; overflow-y:auto; padding:16px 32px 8px;
+    display:flex; flex-direction:column; gap:12px;
   }
-  .chat-spacer { flex:1; }
+  .chat-spacer { flex:1; min-height:0; }
   
   /* INTRO */
   .oracle-intro { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px 20px 40px; gap:16px; }
@@ -1396,7 +1395,7 @@ function addOracleMsg(html, typing=false) {
   }
   div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
   msgs.appendChild(div);
-  setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 10);
+  msgs.scrollTop = msgs.scrollHeight;
   return div;
 }
 
@@ -1408,7 +1407,7 @@ function addUserMsg(text) {
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
   msgs.appendChild(div);
-  setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 10);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 function addOptionPicker() {
@@ -1495,9 +1494,10 @@ async function sendMessage() {
     const thinking = addOracleMsg('', true);
     await sleep(600);
 
-    // Detect if it's a direct factual question (math, science, fact)
-    const directPatterns = /^(what is|what's|calculate|solve|how much|how many|when was|who is|who was|define|what does|convert|\d+[+\-*/^])/i;
-    const isDirectQ = directPatterns.test(text.trim());
+    // Detect if it's a direct factual question - broader detection
+    const directPatterns = /^(what is|what's|calculate|solve|how much|how many|when was|who is|who was|who were|define|what does|convert|how do|explain|why is|why does|what are|how does|tell me|is it|can you|\d+[+\-*/^%]|[+\-]?\d)/i;
+    const hasQuestionMark = text.trim().endsWith('?') && !text.toLowerCase().includes(' or ') && !text.toLowerCase().includes('should i') && !text.toLowerCase().includes('which one');
+    const isDirectQ = directPatterns.test(text.trim()) || hasQuestionMark;
 
     if (isDirectQ) {
       thinking.querySelector('.msg-bubble').innerHTML = `Let me answer that directly.`;
@@ -1710,20 +1710,15 @@ function buildVerdictHTML(parsed) {
 function closeVerdict() {
   const panel = document.getElementById('verdictPanel');
   panel.classList.remove('open');
-  setTimeout(() => { panel.style.display = 'none'; }, 400);
+  setTimeout(() => panel.style.display = 'none', 420);
 }
 
 function showVerdict(html) {
   const panel = document.getElementById('verdictPanel');
   const inner = document.getElementById('verdictPanelInner');
   inner.innerHTML = html;
-  panel.style.right = '-520px';
   panel.style.display = 'flex';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      panel.classList.add('open');
-    });
-  });
+  requestAnimationFrame(() => panel.classList.add('open'));
 
   // Animate gauges
   setTimeout(() => {
