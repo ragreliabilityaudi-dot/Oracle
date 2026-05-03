@@ -573,8 +573,11 @@
     flex-direction:column;
     gap:12px;
     min-height:0;
+    justify-content:flex-end;
   }
-  .chat-spacer { flex:1; }
+  /* When content overflows, flex-end stops working - this wrapper fixes it */
+  .chat-messages > * { flex-shrink:0; }
+  .chat-spacer { display:none; }
   
   /* INTRO */
   .oracle-intro { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 20px; gap:16px; min-height:400px; }
