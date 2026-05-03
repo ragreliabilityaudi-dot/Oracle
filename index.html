@@ -627,13 +627,31 @@
   .chat-hint { font-size:10px; color:var(--text-muted); text-align:center; margin-top:8px; }
 
   /* VERDICT PANEL */
-  .verdict-panel { border-left:1px solid rgba(255,255,255,0.045); overflow-y:auto; background:rgba(0,0,0,0.15); display:flex; flex-direction:column; }
-  .verdict-panel-inner { padding:0; flex:1; }
-  .verdict-hero { position:relative; z-index:1; }
-  .verdict-panel-header { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(4,7,15,0.8); backdrop-filter:blur(20px); position:sticky; top:0; z-index:20; }
+
+  /* VERDICT PANEL - SLIDES FROM RIGHT */
+  .verdict-panel {
+    position:fixed;
+    top:65px; right:0; bottom:0;
+    width:480px;
+    z-index:9999;
+    background:rgba(6,10,22,0.99);
+    border-left:1px solid rgba(74,127,255,0.25);
+    backdrop-filter:blur(40px);
+    -webkit-backdrop-filter:blur(40px);
+    display:flex;
+    flex-direction:column;
+    transform:translateX(100%);
+    transition:transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    box-shadow:-12px 0 48px rgba(0,0,0,0.6);
+  }
+  .verdict-panel.open { transform:translateX(0); }
+  .verdict-modal { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+  .verdict-panel-inner { display:flex; flex-direction:column; overflow-y:auto; flex:1; }
+  .verdict-panel-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
   .verdict-panel-title { font-size:11px; color:var(--text-muted); letter-spacing:0.1em; text-transform:uppercase; }
-  .verdict-close-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); width:24px; height:24px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; transition:all 0.2s; }
-  .verdict-close-btn:hover { background:rgba(255,74,107,0.15); border-color:rgba(255,74,107,0.3); color:#ff8fa3; }
+  .verdict-close-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); width:28px; height:28px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; transition:all 0.2s; }
+  .verdict-close-btn:hover { background:rgba(255,74,107,0.2); border-color:rgba(255,74,107,0.4); color:#ff8fa3; }
+
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
   .fadein { animation:fi 0.4s ease forwards; }
