@@ -568,17 +568,20 @@
   .chat-messages { 
     flex:1;
     overflow-y:auto;
-    padding:16px 32px 8px;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+  }
+  .chat-inner {
+    flex:1;
     display:flex;
     flex-direction:column;
     justify-content:flex-end;
+    padding:16px 32px 8px;
     gap:10px;
-    min-height:0;
+    min-height:min-content;
   }
-  .chat-messages:has(> :nth-child(5)) {
-    justify-content:flex-start;
-  }
-  .chat-messages > * { flex-shrink:0; }
+  .chat-inner > * { flex-shrink:0; }
   .chat-spacer { display:none; }
   
   /* INTRO */
@@ -980,10 +983,11 @@
 
     <!-- CHAT AREA -->
     <div class="chat-area" id="chatArea">
-      <div class="chat-messages" id="chatMessages"><div class="chat-spacer" id="chatSpacer"></div><div class="chat-spacer"></div>
+      <div class="chat-messages" id="chatMessages"><div class="chat-inner" id="chatInner"><div class="chat-spacer"></div>
 
       </div>
 
+      </div></div><!-- end chat-inner/chat-messages -->
       <!-- INTRO OVERLAY -->
       <div class="oracle-intro" id="oracleIntro">
         <div class="intro-gem">
@@ -1412,7 +1416,7 @@ function useExample(el) {
 }
 
 function addOracleMsg(html, typing=false) {
-  const msgs = document.getElementById('chatMessages');
+  const msgs = document.getElementById('chatInner') || document.getElementById('chatMessages');
   // Hide intro overlay
   const intro = document.getElementById('oracleIntro');
   if (intro) intro.classList.add('hidden');
@@ -1426,23 +1430,23 @@ function addOracleMsg(html, typing=false) {
   }
   div.innerHTML = `<div class="msg-avatar oracle">O</div><div class="msg-bubble oracle">${html}</div>`;
   msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  const outer = document.getElementById('chatMessages'); if(outer) outer.scrollTop = outer.scrollHeight;
   return div;
 }
 
 function addUserMsg(text) {
-  const msgs = document.getElementById('chatMessages');
+  const msgs = document.getElementById('chatInner') || document.getElementById('chatMessages');
   const intro = document.getElementById('oracleIntro');
   if (intro) intro.classList.add('hidden');
   const div = document.createElement('div');
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
   msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  const outer = document.getElementById('chatMessages'); if(outer) outer.scrollTop = outer.scrollHeight;
 }
 
 function addOptionPicker() {
-  const msgs = document.getElementById('chatMessages');
+  const msgs = document.getElementById('chatInner') || document.getElementById('chatMessages');
   optCount = 2;
   const div = document.createElement('div');
   div.className = 'msg oracle';
@@ -1465,7 +1469,7 @@ function addOptionPicker() {
       <button class="submit-options-btn" onclick="submitOptions()">Analyze with Oracle →</button>
     </div>`;
   msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  const outer = document.getElementById('chatMessages'); if(outer) outer.scrollTop = outer.scrollHeight;
   setTimeout(() => document.getElementById('optIn_0')?.focus(), 100);
 }
 
