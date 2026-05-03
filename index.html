@@ -574,10 +574,7 @@
     gap:10px;
     min-height:0;
   }
-  .chat-messages::before {
-    content: '';
-    flex:1;
-  }
+
   .chat-messages > * { flex-shrink:0; }
   .chat-spacer { display:none; }
   
@@ -1765,6 +1762,15 @@ function showVerdict(html) {
 
 renderHistory();
 applyLang();
+
+// Keep messages at bottom like Instagram
+const chatEl = document.getElementById('chatMessages');
+if (chatEl) {
+  const observer = new MutationObserver(() => {
+    chatEl.scrollTop = chatEl.scrollHeight;
+  });
+  observer.observe(chatEl, { childList: true, subtree: true });
+}
 
 </script>
 <!-- VERDICT PANEL -->
