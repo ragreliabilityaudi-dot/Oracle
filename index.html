@@ -564,7 +564,10 @@
   .history-time { font-size:10px; color:var(--text-muted); margin-left:auto; }
 
   /* CHAT AREA */
-  .chat-area { display:flex; flex-direction:column; overflow:hidden; position:relative; height:100%; }
+  .chat-area { 
+    display:flex; flex-direction:column; overflow:hidden; 
+    position:relative; height:100%;
+  }
   .chat-messages { 
     flex:1;
     overflow-y:auto;
@@ -573,6 +576,10 @@
     flex-direction:column;
     gap:10px;
     min-height:0;
+  }
+  .chat-input-area {
+    flex-shrink:0 !important;
+    position:relative !important;
   }
   .chat-messages > * { flex-shrink:0; }
   .chat-spacer { display:none; }
