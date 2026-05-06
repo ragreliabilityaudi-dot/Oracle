@@ -667,6 +667,32 @@
   .verdict-close-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text-secondary); width:28px; height:28px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; transition:all 0.2s; }
   .verdict-close-btn:hover { background:rgba(255,74,107,0.2); border-color:rgba(255,74,107,0.4); color:#ff8fa3; }
 
+
+  /* PROFILE PANEL */
+  .profile-panel {
+    position:fixed; top:65px; right:0; bottom:0; width:360px;
+    z-index:99998;
+    background:#060a16;
+    border-left:1px solid rgba(74,127,255,0.2);
+    display:flex; flex-direction:column;
+    transform:translateX(100%);
+    transition:transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    box-shadow:-12px 0 40px rgba(0,0,0,0.6);
+  }
+  .profile-panel.open { transform:translateX(0); }
+  .profile-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+  .profile-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; color:var(--text-primary); }
+  .profile-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; }
+  .profile-field { display:flex; flex-direction:column; gap:6px; }
+  .profile-label { font-size:11px; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; }
+  .profile-input { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; transition:all 0.2s; width:100%; box-sizing:border-box; }
+  .profile-input:focus { border-color:rgba(74,127,255,0.4); background:rgba(74,127,255,0.04); }
+  .profile-input::placeholder { color:rgba(255,255,255,0.2); }
+  .profile-select { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; width:100%; box-sizing:border-box; cursor:pointer; }
+  .profile-select option { background:#060a16; }
+  .profile-save-btn { width:100%; padding:12px; border-radius:12px; border:1px solid rgba(0,229,160,0.3); background:rgba(0,229,160,0.1); color:#00e5a0; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; transition:all 0.2s; font-weight:500; margin-top:8px; }
+  .profile-save-btn:hover { background:rgba(0,229,160,0.2); }
+  .profile-badge { display:inline-block; font-size:10px; color:#00e5a0; background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); border-radius:6px; padding:2px 8px; margin-left:8px; }
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
   .fadein { animation:fi 0.4s ease forwards; }
@@ -1763,6 +1789,68 @@ function showVerdict(html) {
   }, 200);
 }
 
+
+// ── PROFILE ──
+let userProfile = JSON.parse(localStorage.getItem('oracle_profile') || '{}');
+
+function toggleProfile() {
+  const panel = document.getElementById('profilePanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) loadProfileForm();
+}
+
+function loadProfileForm() {
+  document.getElementById('pName').value = userProfile.name || '';
+  document.getElementById('pAge').value = userProfile.age || '';
+  document.getElementById('pGender').value = userProfile.gender || '';
+  document.getElementById('pLocation').value = userProfile.location || '';
+  document.getElementById('pBudget').value = userProfile.budget || '';
+  document.getElementById('pOccupation').value = userProfile.occupation || '';
+  document.getElementById('pInterests').value = userProfile.interests || '';
+  document.getElementById('pPersonality').value = userProfile.personality || '';
+  document.getElementById('pExtra').value = userProfile.extra || '';
+}
+
+function saveProfile() {
+  userProfile = {
+    name: document.getElementById('pName').value.trim(),
+    age: document.getElementById('pAge').value.trim(),
+    gender: document.getElementById('pGender').value,
+    location: document.getElementById('pLocation').value.trim(),
+    budget: document.getElementById('pBudget').value.trim(),
+    occupation: document.getElementById('pOccupation').value.trim(),
+    interests: document.getElementById('pInterests').value.trim(),
+    personality: document.getElementById('pPersonality').value,
+    extra: document.getElementById('pExtra').value.trim()
+  };
+  localStorage.setItem('oracle_profile', JSON.stringify(userProfile));
+  const btn = document.querySelector('.profile-save-btn');
+  btn.textContent = '✓ Saved';
+  btn.style.background = 'rgba(0,229,160,0.25)';
+  setTimeout(() => {
+    btn.textContent = 'Save Profile';
+    btn.style.background = '';
+    document.getElementById('profilePanel').classList.remove('open');
+  }, 1200);
+}
+
+function getProfileContext() {
+  const p = userProfile;
+  if (!Object.values(p).some(v => v)) return '';
+  let ctx = 'User profile: ';
+  if (p.name) ctx += `Name: ${p.name}. `;
+  if (p.age) ctx += `Age: ${p.age}. `;
+  if (p.gender) ctx += `Gender: ${p.gender}. `;
+  if (p.location) ctx += `Location: ${p.location}. `;
+  if (p.budget) ctx += `Monthly budget: $${p.budget}. `;
+  if (p.occupation) ctx += `Occupation: ${p.occupation}. `;
+  if (p.interests) ctx += `Interests: ${p.interests}. `;
+  if (p.personality) ctx += `Personality: ${p.personality}. `;
+  if (p.extra) ctx += `Additional context: ${p.extra}. `;
+  ctx += 'Use this profile to make your analysis more relevant and personalized.';
+  return ctx;
+}
+
 renderHistory();
 applyLang();
 
@@ -1776,6 +1864,68 @@ applyLang();
     <button onclick="closeVerdict()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;">✕</button>
   </div>
   <div id="verdictPanelInner" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;"></div>
+</div>
+
+<!-- PROFILE PANEL -->
+<div id="profilePanel" class="profile-panel">
+  <div class="profile-header">
+    <div class="profile-title">Your Profile</div>
+    <button onclick="toggleProfile()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:13px;">✕</button>
+  </div>
+  <div class="profile-body">
+    <div style="font-size:12px;color:var(--text-muted);line-height:1.6;padding:8px 12px;background:rgba(74,127,255,0.05);border-radius:10px;border:1px solid rgba(74,127,255,0.1);">
+      Oracle uses this to give you more relevant, personalized verdicts.
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Your Name</div>
+      <input class="profile-input" id="pName" placeholder="e.g. Derrick" />
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Age</div>
+      <input class="profile-input" id="pAge" placeholder="e.g. 18" type="number" />
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Gender</div>
+      <select class="profile-select" id="pGender">
+        <option value="">Prefer not to say</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Location</div>
+      <input class="profile-input" id="pLocation" placeholder="e.g. Taiwan, Taipei" />
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Monthly Budget (USD)</div>
+      <input class="profile-input" id="pBudget" placeholder="e.g. 500" type="number" />
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Occupation</div>
+      <input class="profile-input" id="pOccupation" placeholder="e.g. Student, Founder, Engineer" />
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Interests & Hobbies</div>
+      <input class="profile-input" id="pInterests" placeholder="e.g. basketball, tech, investing" />
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Personality</div>
+      <select class="profile-select" id="pPersonality">
+        <option value="">Select...</option>
+        <option value="risk-taker">Risk-taker — I go for big moves</option>
+        <option value="cautious">Cautious — I think before I act</option>
+        <option value="analytical">Analytical — I want all the data</option>
+        <option value="creative">Creative — I think outside the box</option>
+        <option value="social">Social — people and relationships matter most</option>
+      </select>
+    </div>
+    <div class="profile-field">
+      <div class="profile-label">Anything else Oracle should know</div>
+      <textarea class="profile-input" id="pExtra" rows="3" placeholder="e.g. I'm building a startup, I have 2 kids, I'm training for a marathon..."></textarea>
+    </div>
+    <button class="profile-save-btn" onclick="saveProfile()">Save Profile</button>
+  </div>
 </div>
 </body>
 </html>
