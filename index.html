@@ -1087,6 +1087,16 @@ const T = {
     intSources:'Intelligence Sources', predictedSuccess:'Predicted success',
     blocked:'Request Blocked', blockedMsg:"This request violates Oracle's usage policy.",
     langName:'English', respondIn:'Respond entirely in English.',
+    gotIt:'Got it. What are your options? Add at least 2 paths you\'re weighing.',
+    letMeAnswer:'Let me answer that directly.',
+    useFields:'Use the option fields above to add your choices, then hit Analyze.',
+    wantAnother:'Want to explore another decision? Describe your next situation.',
+    analyzeBtn:'Analyze with Oracle →',
+    addOption:'+ Add another option',
+    optionPlaceholderA:'First option...',
+    optionPlaceholderB:'Second option...',
+    whatsOptions:'What are your options? Add at least 2 paths you\'re considering.',
+    inputPlaceholder:'Describe your situation...',
     stat1:'Decision Accuracy', stat2:'Languages', stat3:'Use Cases',
     feat1title:'Instant Analysis', feat1body:'Get results in seconds, not hours. No consultants, no waiting.',
     feat2title:'Real-World Cases', feat2body:'Every recommendation is backed by thousands of similar real decisions and their outcomes.',
@@ -1373,6 +1383,8 @@ function applyLang() {
 
 function setLang(lang) {
   currentLang = lang;
+  const inp = document.getElementById('chatInput');
+  if (inp) inp.placeholder = t('inputPlaceholder') || 'Describe your situation...';
   applyLang();
 }
 
@@ -1484,19 +1496,19 @@ function addOptionPicker() {
   div.innerHTML = `
     <div class="msg-avatar oracle">O</div>
     <div class="msg-bubble oracle" style="min-width:320px;">
-      <div style="margin-bottom:12px;font-size:13px;">What are your options? Add at least 2 paths you're considering.</div>
+      <div style="margin-bottom:12px;font-size:13px;">${t('whatsOptions')}</div>
       <div class="option-picker" id="optionPicker">
         <div class="option-input-row">
           <div class="option-letter-badge">A</div>
-          <input type="text" class="option-text-input" placeholder="First option..." id="optIn_0">
+          <input type="text" class="option-text-input" placeholder="${t('optionPlaceholderA')}" id="optIn_0">
         </div>
         <div class="option-input-row">
           <div class="option-letter-badge">B</div>
-          <input type="text" class="option-text-input" placeholder="Second option..." id="optIn_1">
+          <input type="text" class="option-text-input" placeholder="${t('optionPlaceholderB')}" id="optIn_1">
         </div>
       </div>
-      <button class="add-option-btn" style="width:100%;margin-top:8px;" onclick="addOptionRow()">+ Add another option</button>
-      <button class="submit-options-btn" onclick="submitOptions()">Analyze with Oracle →</button>
+      <button class="add-option-btn" style="width:100%;margin-top:8px;" onclick="addOptionRow()">${t('addOption')}</button>
+      <button class="submit-options-btn" onclick="submitOptions()">${t('analyzeBtn')}</button>
     </div>`;
   msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
   setTimeout(() => document.getElementById('optIn_0')?.focus(), 100);
@@ -1563,12 +1575,12 @@ async function sendMessage() {
     const isDirectQ = !isDecision;
 
     if (isDirectQ) {
-      thinking.querySelector('.msg-bubble').innerHTML = `Let me answer that directly.`;
+      thinking.querySelector('.msg-bubble').innerHTML = t('letMeAnswer');
       convState = 'idle';
       await sleep(400);
       await answerDirectly(text);
     } else {
-      thinking.querySelector('.msg-bubble').innerHTML = `Got it. What are your options? Add at least 2 paths you're weighing.`;
+      thinking.querySelector('.msg-bubble').innerHTML = t('gotIt');
       addOptionPicker();
     }
 
@@ -1576,7 +1588,7 @@ async function sendMessage() {
     // User typed something instead of using the picker — just remind them
     const thinking = addOracleMsg('', true);
     await sleep(400);
-    thinking.querySelector('.msg-bubble').innerHTML = `Use the option fields above to add your choices, then hit Analyze.`;
+    thinking.querySelector('.msg-bubble').innerHTML = t('useFields');
   }
 
   btn.disabled = false;
