@@ -8,7 +8,7 @@
 <style>
   :root {
     --crystal-dark: #04070f;
-    --text-primary: rgba(255,255,255,0.93);
+    --text-primary: #FFFFFF;
     --text-secondary: rgba(255,255,255,0.52);
     --text-muted: rgba(255,255,255,0.28);
     --accent-blue: #4a7fff;
@@ -992,7 +992,7 @@
         <button class="mode-btn" onclick="setMode('tinted',this)">Tinted</button>
       </div>
       <div class="user-avatar" id="userInitials">D</div>
-      <button onclick="toggleProfile()" style="background:rgba(74,127,255,0.1);border:1px solid rgba(74,127,255,0.25);color:#7ab0ff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:4px;">⚙ Profile</button>
+      <button onclick="toggleProfile()" style="background:rgba(74,127,255,0.1);border:1px solid rgba(74,127,255,0.25);color:#7ab0ff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:4px;" id="profileBtn">⚙ Profile</button>
       <button class="btn danger" onclick="window.location.href='/auth/logout'" data-i18n="signout">Sign out</button>
     </div>
   </div>
@@ -1001,7 +1001,10 @@
     <div class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">Decision History</div>
-        <button onclick="clearHistory()" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:0;">Clear</button>
+        <div style="display:flex;gap:8px;">
+          <button onclick="clearChat()" style="background:none;border:none;color:#7ab0ff;font-size:11px;cursor:pointer;padding:0;">+ New</button>
+          <button onclick="clearHistory()" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:0;">Clear</button>
+        </div>
       </div>
       <div class="history-list" id="historyList">
         <div class="history-empty">No decisions yet.<br>Start a conversation.</div>
@@ -1428,6 +1431,9 @@ function loadHistory(idx) {
   const h = sessionHistory[idx];
   if (!h) return;
   showVerdict(h.verdictHTML);
+  document.querySelectorAll('.history-item').forEach((el, i) => {
+    el.classList.toggle('active', i === 0 && idx === sessionHistory.length - 1 || el.dataset.idx == idx);
+  });
 }
 
 function clearHistory() {
@@ -1445,7 +1451,7 @@ function addOracleMsg(html, typing=false) {
   const msgs = document.getElementById('chatMessages');
   // Hide intro overlay
   const intro = document.getElementById('oracleIntro');
-  if (intro) intro.classList.add('hidden');
+  if (intro) intro.style.display = 'none';
 
   const div = document.createElement('div');
   div.className = 'msg oracle';
@@ -1462,7 +1468,7 @@ function addOracleMsg(html, typing=false) {
 function addUserMsg(text) {
   const msgs = document.getElementById('chatMessages');
   const intro = document.getElementById('oracleIntro');
-  if (intro) intro.classList.add('hidden');
+  if (intro) intro.style.display = 'none';
   const div = document.createElement('div');
   div.className = 'msg user';
   div.innerHTML = `<div class="msg-avatar user">D</div><div class="msg-bubble user">${text}</div>`;
@@ -1552,11 +1558,9 @@ async function sendMessage() {
     const thinking = addOracleMsg('', true);
     await sleep(600);
 
-    // Simple rule: if it ends with ? and doesn't contain "or"/"should I"/"which" = direct
-    // Also direct if starts with question words or math
-    const decisionWords = /\bshould i\b|\bwhich (one|option|is better)\b|\bwhat should\b|\bdecide\b|\bchoose between\b/i;
+    const decisionWords = /\bshould i\b|\bwhich (one|option|is better)\b|\bwhat should\b|\bdecide\b|\bchoose between\b|\bvs\.?\b| or /i;
     const isDecision = decisionWords.test(text);
-    const isDirectQ = !isDecision; // everything that's not clearly a decision = answer directly
+    const isDirectQ = !isDecision;
 
     if (isDirectQ) {
       thinking.querySelector('.msg-bubble').innerHTML = `Let me answer that directly.`;
@@ -1607,9 +1611,6 @@ async function answerDirectly(question) {
     thinking.querySelector('.msg-bubble').innerHTML = `Error: ${e.message}`;
   }
 
-  setTimeout(() => {
-    addOracleMsg(`Want to make a decision? Describe your situation.`);
-  }, 600);
 }
 
 async function runAnalysis() {
@@ -1832,6 +1833,7 @@ function saveProfile() {
     btn.textContent = 'Save Profile';
     btn.style.background = '';
     document.getElementById('profilePanel').classList.remove('open');
+    updateProfileBadge();
   }, 1200);
 }
 
@@ -1852,8 +1854,29 @@ function getProfileContext() {
   return ctx;
 }
 
+function clearChat() {
+  const msgs = document.getElementById('chatMessages');
+  if (msgs) msgs.innerHTML = '';
+  const intro = document.getElementById('oracleIntro');
+  if (intro) intro.style.display = 'flex';
+  convState = 'idle';
+  convSituation = '';
+  convDecision = '';
+  convOptions = [];
+  optCount = 2;
+  closeVerdict();
+}
+
+function updateProfileBadge() {
+  const btn = document.getElementById('profileBtn');
+  if (!btn) return;
+  const hasProfile = userProfile && Object.values(userProfile).some(v => v);
+  btn.innerHTML = hasProfile ? '⚙ Profile <span style="width:6px;height:6px;background:#00e5a0;border-radius:50%;display:inline-block;vertical-align:middle;margin-left:4px;"></span>' : '⚙ Profile';
+}
+
 renderHistory();
 applyLang();
+updateProfileBadge();
 
 
 
