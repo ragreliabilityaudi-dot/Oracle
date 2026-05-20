@@ -1611,7 +1611,7 @@ async function answerDirectly(question) {
         max_tokens: 600,
         temperature: 0.2,
         messages: [
-          { role: 'system', content: `You are Oracle. Answer questions directly and clearly. ${langInstruction} Be concise. For math show the working. No JSON needed.` },
+          { role: 'system', content: `You are Oracle. CRITICAL: Respond ONLY in this language: ${langInstruction} Never use any other language. Be direct and concise. No JSON needed.` },
           { role: 'user', content: question }
         ]
       })
@@ -1637,7 +1637,7 @@ async function runAnalysis() {
   }
 
   const optText = convOptions.map(o => `Option ${o.letter}: ${o.text}`).join('\n');
-  const prompt = `You are Oracle — a brutally honest, evidence-driven decision system. ${langInstruction}
+  const prompt = `You are Oracle. CRITICAL: ALL your output MUST be in this language only: ${langInstruction} Never respond in any other language.
 
 Situation: ${convSituation}
 Options:
@@ -1663,7 +1663,7 @@ Respond ONLY in valid JSON, no markdown, no backticks. Language: ${langInstructi
         max_tokens: 1600,
         temperature: 0.3,
         messages: [
-          { role: 'system', content: `You are Oracle. Respond with valid JSON only. No markdown. ${langInstruction}` },
+          { role: 'system', content: `You are Oracle. CRITICAL: Write ALL JSON values in this language only: ${langInstruction} Respond with valid JSON only. No markdown.` },
           { role: 'user', content: prompt }
         ]
       })
