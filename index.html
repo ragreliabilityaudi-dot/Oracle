@@ -693,6 +693,50 @@
   .profile-save-btn { width:100%; padding:12px; border-radius:12px; border:1px solid rgba(0,229,160,0.3); background:rgba(0,229,160,0.1); color:#00e5a0; font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; transition:all 0.2s; font-weight:500; margin-top:8px; }
   .profile-save-btn:hover { background:rgba(0,229,160,0.2); }
   .profile-badge { display:inline-block; font-size:10px; color:#00e5a0; background:rgba(0,229,160,0.1); border:1px solid rgba(0,229,160,0.2); border-radius:6px; padding:2px 8px; margin-left:8px; }
+
+  /* RISK DNA ONBOARDING */
+  .risk-overlay {
+    position:fixed; inset:0; z-index:99999;
+    background:rgba(4,7,15,0.97);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .risk-card {
+    background:#0d1526;
+    border:1px solid rgba(74,127,255,0.2);
+    border-radius:24px;
+    width:100%; max-width:560px;
+    padding:40px;
+    box-shadow:0 32px 80px rgba(0,0,0,0.7);
+  }
+  .risk-step { display:none; }
+  .risk-step.active { display:block; }
+  .risk-progress { display:flex; gap:6px; margin-bottom:32px; }
+  .risk-dot { flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,0.08); transition:all 0.3s; }
+  .risk-dot.done { background:#4a7fff; }
+  .risk-dot.active { background:rgba(74,127,255,0.5); }
+  .risk-q { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; color:#fff; margin-bottom:8px; line-height:1.3; }
+  .risk-sub { font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:28px; }
+  .risk-options { display:flex; flex-direction:column; gap:10px; }
+  .risk-option {
+    padding:14px 18px; border-radius:12px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.03);
+    color:#fff; font-size:14px; font-family:'DM Sans',sans-serif;
+    cursor:pointer; transition:all 0.2s; text-align:left;
+  }
+  .risk-option:hover { border-color:rgba(74,127,255,0.4); background:rgba(74,127,255,0.08); transform:translateX(4px); }
+  .risk-option.selected { border-color:rgba(74,127,255,0.6); background:rgba(74,127,255,0.15); color:#fff; }
+  .risk-option-label { font-size:11px; color:rgba(255,255,255,0.35); display:block; margin-top:3px; }
+  .risk-result {
+    text-align:center; padding:20px 0;
+  }
+  .risk-dna-name { font-family:'Cormorant Garamond',serif; font-size:42px; font-weight:300; margin:16px 0 8px; }
+  .risk-dna-desc { font-size:14px; color:rgba(255,255,255,0.6); line-height:1.7; margin-bottom:24px; }
+  .risk-traits { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:28px; }
+  .risk-trait { padding:5px 14px; border-radius:20px; font-size:12px; border:1px solid rgba(74,127,255,0.25); background:rgba(74,127,255,0.08); color:#7ab0ff; }
+  .risk-start-btn { width:100%; padding:14px; border-radius:12px; border:1px solid rgba(0,229,160,0.3); background:rgba(0,229,160,0.1); color:#00e5a0; font-family:'DM Sans',sans-serif; font-size:15px; cursor:pointer; font-weight:500; transition:all 0.2s; }
+  .risk-start-btn:hover { background:rgba(0,229,160,0.2); transform:translateY(-1px); }
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
   .fadein { animation:fi 0.4s ease forwards; }
@@ -1853,6 +1897,7 @@ function getProfileContext() {
   const p = userProfile;
   if (!Object.values(p).some(v => v)) return '';
   let ctx = 'User profile: ';
+  if (p.riskName) ctx += `Risk DNA: ${p.riskName} — ${p.riskDesc} `;
   if (p.name) ctx += `Name: ${p.name}. `;
   if (p.age) ctx += `Age: ${p.age}. `;
   if (p.gender) ctx += `Gender: ${p.gender}. `;
@@ -1963,5 +2008,91 @@ updateProfileBadge();
     <button class="profile-save-btn" onclick="saveProfile()">Save Profile</button>
   </div>
 </div>
+
+<!-- RISK DNA ONBOARDING -->
+<div class="risk-overlay" id="riskOverlay" style="display:none;">
+  <div class="risk-card">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:#4a7fff;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:20px;">Oracle · Risk DNA</div>
+    <div class="risk-progress" id="riskProgress">
+      <div class="risk-dot active" id="rdot0"></div>
+      <div class="risk-dot" id="rdot1"></div>
+      <div class="risk-dot" id="rdot2"></div>
+      <div class="risk-dot" id="rdot3"></div>
+      <div class="risk-dot" id="rdot4"></div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="risk-step active" id="riskStep0">
+      <div class="risk-q">You have $1,000 to invest. What do you do?</div>
+      <div class="risk-sub">There's no wrong answer — Oracle needs to understand how you think.</div>
+      <div class="risk-options">
+        <button class="risk-option" onclick="riskAnswer(0,'safe')">Put it in a savings account<span class="risk-option-label">Low risk, guaranteed small return</span></button>
+        <button class="risk-option" onclick="riskAnswer(0,'moderate')">Split between stocks and savings<span class="risk-option-label">Balanced approach</span></button>
+        <button class="risk-option" onclick="riskAnswer(0,'aggressive')">All in on one promising stock<span class="risk-option-label">High risk, high reward</span></button>
+        <button class="risk-option" onclick="riskAnswer(0,'bold')">Invest in my own idea or business<span class="risk-option-label">You believe in yourself most</span></button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="risk-step" id="riskStep1">
+      <div class="risk-q">A decision needs to be made in 10 minutes. You don't have all the info. What do you do?</div>
+      <div class="risk-sub">How you handle pressure reveals your decision style.</div>
+      <div class="risk-options">
+        <button class="risk-option" onclick="riskAnswer(1,'safe')">Wait — I need more information before deciding<span class="risk-option-label">Comfort in certainty</span></button>
+        <button class="risk-option" onclick="riskAnswer(1,'moderate')">Make my best guess and stay flexible<span class="risk-option-label">Adaptive thinker</span></button>
+        <button class="risk-option" onclick="riskAnswer(1,'aggressive')">Decide fast and own it<span class="risk-option-label">Bias for action</span></button>
+        <button class="risk-option" onclick="riskAnswer(1,'bold')">Ask someone I trust for a quick take<span class="risk-option-label">Collaborative instinct</span></button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="risk-step" id="riskStep2">
+      <div class="risk-q">You made a decision that turned out wrong. How do you feel?</div>
+      <div class="risk-sub">Your relationship with failure shapes every future decision.</div>
+      <div class="risk-options">
+        <button class="risk-option" onclick="riskAnswer(2,'safe')">Frustrated — I should have been more careful<span class="risk-option-label">High self-accountability</span></button>
+        <button class="risk-option" onclick="riskAnswer(2,'moderate')">Disappointed but ready to learn and move on<span class="risk-option-label">Growth mindset</span></button>
+        <button class="risk-option" onclick="riskAnswer(2,'aggressive')">Fine — wrong decisions are part of the game<span class="risk-option-label">High resilience</span></button>
+        <button class="risk-option" onclick="riskAnswer(2,'bold')">Energized — now I know what not to do<span class="risk-option-label">Failure as fuel</span></button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="risk-step" id="riskStep3">
+      <div class="risk-q">What matters most to you when making a big decision?</div>
+      <div class="risk-sub">Your core value system is Oracle's most important input.</div>
+      <div class="risk-options">
+        <button class="risk-option" onclick="riskAnswer(3,'safe')">Security — protect what I have<span class="risk-option-label">Preservation first</span></button>
+        <button class="risk-option" onclick="riskAnswer(3,'moderate')">Balance — don't give up too much for too little<span class="risk-option-label">Measured tradeoffs</span></button>
+        <button class="risk-option" onclick="riskAnswer(3,'aggressive')">Growth — maximize upside even if risky<span class="risk-option-label">Upside-focused</span></button>
+        <button class="risk-option" onclick="riskAnswer(3,'bold')">Impact — does this change something that matters?<span class="risk-option-label">Purpose-driven</span></button>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="risk-step" id="riskStep4">
+      <div class="risk-q">You're offered something great — but you have to decide by tomorrow. No time to research. Do you take it?</div>
+      <div class="risk-sub">Last question. Your answer reveals your default mode.</div>
+      <div class="risk-options">
+        <button class="risk-option" onclick="riskAnswer(4,'safe')">No — if I can't research it, I don't do it<span class="risk-option-label">Information-dependent</span></button>
+        <button class="risk-option" onclick="riskAnswer(4,'moderate')">Maybe — depends on gut feeling in the moment<span class="risk-option-label">Intuition-guided</span></button>
+        <button class="risk-option" onclick="riskAnswer(4,'aggressive')">Yes — great opportunities don't wait<span class="risk-option-label">Opportunity-seeker</span></button>
+        <button class="risk-option" onclick="riskAnswer(4,'bold')">Yes — and I'd figure it out after<span class="risk-option-label">Extreme bias for action</span></button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="risk-step" id="riskResult">
+      <div class="risk-result">
+        <div style="font-size:48px;" id="riskEmoji">🎯</div>
+        <div class="risk-dna-name" id="riskDnaName">Calculated Risk-Taker</div>
+        <div class="risk-dna-desc" id="riskDnaDesc">You weigh evidence carefully but aren't paralyzed by uncertainty. Oracle will give you verdicts that respect your need for data while pushing you toward decisive action.</div>
+        <div class="risk-traits" id="riskTraits"></div>
+        <button class="risk-start-btn" onclick="finishRiskDna()">Start Using Oracle →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
