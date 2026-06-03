@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'https://oracle-production-bee1.up.railway.app/auth/google/callback'
+  callbackURL: process.env.CALLBACK_URL || 'https://oracle-4q0o.onrender.com/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
   return done(null, profile);
 }));
