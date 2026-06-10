@@ -1,66 +1,60 @@
 const express = require('express');
 const session = require('express-session');
+const passport = require('passport');
+const { Strategy: GoogleStrategy } = require('passport-google-oauth20');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'oracle-secret-2026',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.CALLBACK_URL || 'https://oracle-4q0o.onrender.com/auth/google/callback'
+}, (accessToken, refreshToken, profile, done) => {
+  return done(null, profile);
 }));
 
-// Simple in-memory user store (resets on redeploy — fine for now)
-const users = {};
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
 
-function hash(password) {
-  return crypto.createHash('sha256').update(password + 'oracle-salt').digest('hex');
-}
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'oracle-secret-key',
+  resave: false,
+  saveUninitialized: false
+}));
 
-function serveHtml(req, res) {
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => res.redirect('/app')
+);
+
+app.get('/auth/logout', (req, res) => {
+  req.logout(() => res.redirect('/'));
+});
+
+function serveHtml(req, res, user) {
   let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   html = html.replace('const GROQ_KEY = window.GROQ_KEY;', `const GROQ_KEY = "${process.env.GROQ_KEY || ''}";`);
-  const user = req.session.user || null;
   html = html.replace('const GOOGLE_USER = window.GOOGLE_USER;', `const GOOGLE_USER = ${JSON.stringify(user)};`);
   res.send(html);
 }
 
-// Auth routes
-app.post('/auth/signup', (req, res) => {
-  const { email, password, name } = req.body;
-  if (!email || !password || !name) return res.json({ error: 'All fields required' });
-  if (users[email]) return res.json({ error: 'Email already registered' });
-  users[email] = { email, name, password: hash(password) };
-  req.session.user = { email, name };
-  res.json({ success: true });
-});
-
-app.post('/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = users[email];
-  if (!user || user.password !== hash(password)) return res.json({ error: 'Invalid email or password' });
-  req.session.user = { email, name: user.name };
-  res.json({ success: true });
-});
-
-app.get('/auth/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
-});
-
 app.get('/app', (req, res) => {
-  if (!req.session.user) return res.redirect('/');
-  serveHtml(req, res);
+  if (!req.isAuthenticated()) return res.redirect('/');
+  const user = { name: req.user.displayName, email: req.user.emails?.[0]?.value, photo: req.user.photos?.[0]?.value };
+  serveHtml(req, res, user);
 });
 
 app.get('/', (req, res) => {
-  if (req.session.user) return res.redirect('/app');
-  serveHtml(req, res);
+  if (req.isAuthenticated()) return res.redirect('/app');
+  serveHtml(req, res, null);
 });
 
 app.use(express.static(__dirname));
